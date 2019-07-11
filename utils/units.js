@@ -255,7 +255,7 @@ $('#btnEvolution').on('click', (e) => {
 	const data = CD[unit_id];
 
 	const nextData = data[YD.NEXT_ID];
-	const nextId = nextId[YD.ID];
+	const nextId = nextData[YD.ID];
 
 	if (nextId == unit_id) {
 		alert(`★${data[YD.RARE]} ${data[YD.NAME]} は進化できません`);
