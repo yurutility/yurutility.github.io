@@ -5,8 +5,14 @@ const CD = YURUDATA.data;
 
 let savedata;
 function loadData() {
-	const jsoned = localStorage.getItem('data_packed') || "{}";
-	savedata = JSON.parse(jsoned);
+	let jsoned = localStorage.getItem('data_packed') || "{}";
+	if (jsoned == "[]") {
+		// データ空っぽ
+		savedata = {"10023":[[]],"10024":[[]],"10025":[[]],"10054":[[]],"10073":[[]],"20045":[[]],"20063":[[]],"20073":[[]],"30024":[[]],"30053":[[]],"30225":[[]],"40033":[[]],"40043":[[]],"40073":[[]],"50033":[[]],"50165":[[]]};
+		setTimeout(alert.bind(null, "所有ユニットが未登録なので仮データとして登録しました"), 2000);
+	} else {
+		savedata = JSON.parse(jsoned);
+	}
 
 	Object.keys(savedata).forEach((v, i) => {
 		savedata[v].forEach((v) => {
@@ -43,7 +49,7 @@ function saveData() {
 	});
 	$('#txtData').val(JSON.stringify(packed));
 	localStorage.setItem('data_packed', JSON.stringify(packed));
-	localStorage.setItem('data_compressed', LZString.compressToBase64(JSON.stringify(packed)));
+	//localStorage.setItem('data_compressed', LZString.compressToBase64(JSON.stringify(packed)));
 }
 
 const [addBox, removeBox] = (() => {
