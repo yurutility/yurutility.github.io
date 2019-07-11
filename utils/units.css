@@ -1,0 +1,72 @@
+/* unit.html - ユニット管理 */
+
+		/* オートコンプリート リスト表示部 */
+		.ui-autocomplete {
+			max-height: 450px;
+			/* ドロップダウンの最大高を設定 */
+			overflow-x: hidden;
+			overflow-y: scroll;
+			/* これを入れることで ↓ のトラブル発生(最下段) */
+		}
+		.ui-autocomplete .ui-menu-item {
+			border: solid 1px transparent;
+			/* これを入れることで state-active 時のトラブルを修正  */
+		}
+		.ui-autocomplete .ui-state-active {
+			/* リストの選択要素を見やすく */
+			background: #3cbfd3 !important;
+			color: #ffffff;
+		}
+
+		img.chara-icon {
+			width: 55px;
+			height: 55px;
+		}
+
+		img.member_icon {
+			padding: 1px;
+			/* ←と↓の幅を調整して枠を見やすく */
+			border: dashed 3px transparent;
+		}
+
+		@keyframes border-blink-red {
+			0% {
+				border-color: #f00;
+			}
+
+			/* 枠の明滅(赤色) */
+			50% {
+				border-color: #fff;
+			}
+
+			100% {
+				border-color: #f00;
+			}
+		}
+
+		img.member_icon_growth {
+			/* 育成済みユニットに枠を付けて明滅 */
+			border-color: #f00;
+			animation: border-blink-red 1s infinite;
+		}
+
+		@keyframes border-blink-blue {
+			0% {
+				border-color: #00f;
+			}
+
+			/* 枠の明滅(青色) */
+			50% {
+				border-color: #fff;
+			}
+
+			100% {
+				border-color: #00f;
+			}
+		}
+
+		img.member_icon_selected {
+			/* 選択中のユニットに枠を付けて明滅 */
+			border-color: #00f;
+			animation: border-blink-blue 1s infinite;
+		}

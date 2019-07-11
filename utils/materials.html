@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>強化・進化 素材管理 - ゆるティリティ</title>
+
+	<link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
+
+
+
+
+
+	<link rel="stylesheet" href="yurutility-common.css">
+	<style>
+		input[type=number] {
+			font-size: large;
+			text-align: right;
+			background-color: #ffc;
+			width: 56px;
+		}
+
+		input[type=number][readonly=readonly] {
+			background-color: #dfd;
+		}
+	</style>
+	<style>
+		/**** 強化素材(所持+不足) ****/
+		table#s_table {
+			table-layout: fixed;
+			width: 384px;
+		}
+
+		table#s_table thead,
+		table#s_table tbody tr td:nth-child(1) {
+			/* 行見出し、列見出し */
+			text-align: center;
+			font-size: x-small;
+			line-height: 20px;
+		}
+
+		table#s_table tbody td {
+			/* 値セル */
+			text-align: right;
+		}
+
+		table#s_table td {
+			/* 値セルの幅 */
+			width: 64px;
+		}
+	</style>
+	<style>
+		/**** 進化素材(所持) ****/
+		table#e_table {
+			table-layout: fixed;
+			width: 320px;
+		}
+
+		table#e_table thead,
+		table#e_table tbody tr td:nth-child(1) {
+			/* 行見出し、列見出し */
+			text-align: center;
+			font-size: x-small;
+			line-height: 20px;
+		}
+
+		table#e_table tbody td {
+			/* 値セル */
+			text-align: right;
+		}
+
+		table#e_table td {
+			/* 値セルの幅 */
+			width: 64px;
+		}
+
+		/**** 進化素材(不足) ****/
+		table#es_table {
+			table-layout: fixed;
+			width: 320px;
+		}
+	</style>
+	<style>
+		table#es_table thead,
+		table#es_table tbody tr td:nth-child(1) {
+			/* 行見出し、列見出し */
+			text-align: center;
+			font-size: x-small;
+			line-height: 20px;
+		}
+
+		table#es_table tbody td {
+			/* 値セル */
+			text-align: right;
+		}
+
+		table#es_table td {
+			/* 値セルの幅 */
+			width: 64px;
+		}
+	</style>
+	<style>
+		/**** 強化素材(所持+不足) ****/
+		table#u_table {
+			table-layout: fixed;
+			/* width: 1px; */
+		}
+
+		table#u_table thead,
+		table#u_table tbody tr td:nth-child(1) {
+			/* 行見出し、列見出し */
+			text-align: center;
+			font-size: x-small;
+			line-height: 20px;
+		}
+
+		table#u_table tbody td {
+			/* 値セル */
+			text-align: right;
+		}
+
+		table#u_table th,
+		table#u_table td {
+			/* 値セルの幅 */
+			width: 64px;
+		}
+	</style>
+</head>
+<script>
+	const ATTR_J = "　炎氷風雷光闇".split('');
+
+	const $inputs = [{}, {}, {}, {}, {}, {}, {}]; // 値の操作はここから可能
+	const input_list = ['s3', 's4', 's5', 'e2', 'e3', 'e4', 'e5', '1_60', '60_1', '1_60_80_1', '60_1_80_1', '1_80_1', '80_1', '1_100', '100_120', 'no3', 'no4', 'ss3', 'ss4', 'es2', 'es3', 'es4', 'es5'];
+	const input_map = {}; input_list.forEach((v, i) => { input_map[v] = i });
+	let lastValue = 0;
+
+	function input_focused(e) {
+		const $this = $(this);
+		lastValue = $this.val();
+		//console.log(`focused: id=${e.target.id} type=${$this.data('type')} key=${$this.data('key')}`);
+	}
+	function input_blured(e) {
+		const $this = $(this);
+		const value = parseInt($this.val());
+		$this.val(isNaN(value) ? lastValue : value);
+	}
+	function input_changed(e){
+		const $this = $(this);
+		const type = $this.data('type');
+		const key = $this.data('key');
+		const value = parseInt($this.val());
+		savedata[type][input_map[key]] = value;
+		trySave();
+		//console.log(`focused: id=${e.target.id} value=${value} type=${type} key=${key} =${input_map[key]}`);
+		calcData();
+	}
+	ATTR_J.forEach((v, i) => {
+		if (i == 0) // 1:炎 6:闇
+			return;
+		input_list.forEach((v2, i2) => {
+			$inputs[i][v2] = $('<input>')
+				.data('type', i)
+				.data('key', v2)
+				.attr({
+					id: `${v}_${v2}`,
+					type: 'number',
+					min: 0, max: 999,
+					required: 'required'
+				})
+				.val(i*100+i2)
+				.on('focus', input_focused)
+				.on('blur', input_blured)
+				.on('change', input_changed);
+		});
+	});
+
+	let trySaveTimer;
+	let savedata;
+	loadData();
+	function saveData() {
+		clearTimeout(trySaveTimer);
+		localStorage.setItem('materials', JSON.stringify(savedata));
+		console.log('saved');
+	}
+	function trySave(){
+		clearTimeout(trySaveTimer);
+		trySaveTimer = setTimeout(saveData, 2000);
+	}
+	function loadData() {
+		let jsoned = localStorage.getItem('materials');
+		if (!jsoned) {
+			savedata = [[]];
+			for (let i = 0; i <= 6; i++) {
+				savedata[i] = [];
+				for (let j = 0; j < 20; j++) {
+					savedata[i][j] = 0;
+				}
+			}
+			saveData();
+		}
+		savedata = JSON.parse(localStorage.getItem('materials'));
+		for (let type = 1; type <= 6; type++) {
+			for (let idx = 0; idx <= 16; idx++) {
+				const value = parseInt(savedata[type][idx]);
+				$inputs[type][input_list[idx]].val(isNaN(value) ? 0 : value);
+			}
+		}
+		calcData();
+	}
+	function calcData(){
+		// 'ss3', 'ss4', 'es2', 'es3', 'es4', 'es5'
+		ATTR_J.forEach((v, i) => {
+			if (i == 0) // 1:炎 6:闇
+				return;
+			const [s3, s4, s5, e2, e3, e4, e5, v1_60, v60_1, v1_60_80_1, v60_1_80_1, v1_80_1, v80_1, v1_100, v100_120, no3, no4] = savedata[i];
+
+			//const 
+			//=(((B3*$B$9+D3*$D$9)*2.8)+((D3*$D$9+E3*$E$9+F3*$F$9)*4.5)+K3*$K$9*6.7)
+
+			const ss_3 = (s3 + s4 * 2.7 + s5 * 9) / 9;
+			const ss_r = (v1_60 + v1_60_80_1) * 2.8 + (v1_60_80_1 + v60_1_80_1 + v1_80_1) * 4.5 + (v1_100) * 6.7 + (v100_120) * 52;
+
+			const ss3 = Math.floor(ss_3);
+			const ss4 = (ss_r - ss_3 < 0) ? 0 : Math.ceil((ss_r - ss_3) / 1.8);
+			const es2 = (v60_1) * 1 + (v1_60_80_1 + v60_1_80_1) * 2 + (v1_80_1 + v80_1) * 1 - (no3 * 2) - (no4 * 1);
+			const es3 = (v60_1) * 1 + (v1_60_80_1 + v60_1_80_1) * 2 + (v1_80_1 + v80_1) * 1 - (no3 * 2) - (no4 * 1);
+			const es4 = (v60_1) * 2 + (v1_60_80_1 + v60_1_80_1) * 3 + (v1_80_1 + v80_1) * 1 - (no3 * 3) - (no4 * 1);
+			const es5 = (v1_60_80_1 + v60_1_80_1 + v1_80_1 + v80_1) * 2 - (no3 * 2) - (no4 * 2);
+
+			$inputs[i]['es2'].val(es2 - e2);
+			$inputs[i]['es3'].val(es3 - e3);
+			$inputs[i]['es4'].val(es4 - e4);
+			$inputs[i]['es5'].val(es5 - e5);
+			$inputs[i]['ss3'].val(ss3);
+			$inputs[i]['ss4'].val(ss4);
+		});
+	}
+
+	$(() => {
+		const selectable_tag = { input: true, textarea: true };
+		$(document).on('selectstart', (e) => {
+			return !!selectable_tag[e.target.tagName];
+		});
+		$(document).on('dragstart', () => false);
+
+		const $u_tbody = $('table#u_table>tbody');
+		const $s_tbody = $('table#s_table>tbody');
+		const $e_tbody = $('table#e_table>tbody');
+		const $es_tbody = $('table#es_table>tbody');
+		ATTR_J.forEach((v, i) => {
+			if (i == 0) // 1:炎 6:闇
+				return;
+			// 強化計画
+			const $u_tr = $('<tr>').appendTo($u_tbody);
+			$u_tr.append(
+				$('<th>').text(v)
+			).append(
+				$('<td>').append($inputs[i]['1_60'])
+			).append(
+				$('<td>').append($inputs[i]['60_1'])
+			).append(
+				$('<td>').append($inputs[i]['1_60_80_1'])
+			).append(
+				$('<td>').append($inputs[i]['60_1_80_1'])
+			).append(
+				$('<td>').append($inputs[i]['1_80_1'])
+			).append(
+				$('<td>').append($inputs[i]['80_1'])
+			).append(
+				$('<th>').text(v)
+			).append(
+				$('<td>').append($inputs[i]['1_100'])
+			).append(
+				$('<td>').append($inputs[i]['100_120'])
+			).append(
+				$('<td>').append($inputs[i]['no3'])
+			).append(
+				$('<td>').append($inputs[i]['no4'])
+			);
+
+			// 強化素材(所持数+不足数)
+			const $s_tr = $('<tr>').appendTo($s_tbody);
+			$s_tr.append(
+				$('<th>').text(v)
+			).append(
+				$('<td>').append($inputs[i]['s3'])
+			).append(
+				$('<td>').append($inputs[i]['s4'])
+			).append(
+				$('<td>').append($inputs[i]['s5'])
+			).append(
+				$('<td>').append($inputs[i]['ss3'].attr({ readonly: 'readonly' }))
+			).append(
+				$('<td>').append($inputs[i]['ss4'].attr({ readonly: 'readonly' }))
+			);
+
+			// 進化素材(所持数)
+			const $e_tr = $('<tr>').appendTo($e_tbody);
+			$e_tr.append(
+				$('<th>').text(v)
+			).append(
+				$('<td>').append($inputs[i]['e2'])
+			).append(
+				$('<td>').append($inputs[i]['e3'])
+			).append(
+				$('<td>').append($inputs[i]['e4'])
+			).append(
+				$('<td>').append($inputs[i]['e5'])
+			);
+
+			// 進化素材 不足数
+			const $es_tr = $('<tr>').appendTo($es_tbody);
+			$es_tr.append(
+				$('<th>').text(v)
+			).append(
+				$('<td>').append($inputs[i]['es2'].attr({ readonly: 'readonly' }))
+			).append(
+				$('<td>').append($inputs[i]['es3'].attr({ readonly: 'readonly' }))
+			).append(
+				$('<td>').append($inputs[i]['es4'].attr({ readonly: 'readonly' }))
+			).append(
+				$('<td>').append($inputs[i]['es5'].attr({ readonly: 'readonly' }))
+			);
+		});
+		$('#page_url').on('change', () => {
+			saveData();
+			const page = $('#page_url').val();
+			location.href = `${page}.html`;
+		}).val('materials');
+	});
+</script>
+
+<body>
+	<select id="page_url"><option value="units">ユニット管理</option><option value="view">ユニット一覧</option><option value="summary">ユニット集計</option><option value="materials">育成素材管理</option></select> 
+	<table id="u_table" border="1">
+		<thead>
+			<tr>
+				<th colspan="12">強化計画</th>
+			</tr>
+			<tr>
+				<th><span title="マウスホバーで列の説明">説明→</span></th>
+				<th><span title="レベル60に上げたい★3ユニット数(★4 にしない)">1->60</span></th>
+				<th><span title="レベル60に上げたい★3ユニット数(★4 に進化させて終わり)">60,1</span></th>
+				<th><span title="★5に進化させるレベル１の★3ユニット数">1->60,80,1</span></th>
+				<th><span title="★5に進化させるレベル60の★3ユニット数">60,1->80,1</span></th>
+				<th><span title="★5に進化させるレベル１の★4ユニット数">1->80,1</span></th>
+				<th><span title="★5に進化させるレベル80の★4ユニット数">80,1</span></th>
+				<th><span>&nbsp;</span></th>
+				<th><span title="★5のレベル100まで上げたいユニット数">1->100</span></th>
+				<th><span title="限界突破の上限まで上げたいレベル100のユニット数">100->120</span></th>
+				<th><span title="左で強化させるユニットのうち進化素材が通常素材ではない特殊キャラの★3ユニット数">特殊★3</span></th>
+				<th><span title="左で強化させるユニットのうち進化素材が通常素材ではない特殊キャラの★4ユニット数">特殊★4</span></th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+
+	<table id="s_table" border="1">
+		<thead>
+			<tr>
+				<th colspan="6">強化素材</th>
+			</tr>
+			<tr>
+				<td><span title="マウスホバーで説明が表示されます">説明⇒</span></td>
+				<td><span title="所持している★3強化素材(メタル)の数">★3</span></td>
+				<td><span title="所持している★4強化素材(キング)の数">★4</span></td>
+				<td><span title="所持している★5強化素材(ゴッド)の数">★5</span></td>
+				<td><span title="所持している強化素材の★5ゴッド相当数">所持</span></td>
+				<td><span title="不足分をためるのに必要な超級の周回数">周回</span></td>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+
+	<table id="e_table" border="1" style="float: left;">
+		<thead>
+			<tr>
+				<th colspan="5">進化素材 所持数</th>
+			</tr>
+			<tr>
+				<td><span title="マウスホバーで説明が表示されます">説明⇒</span></td>
+				<td><span title="所持している★2進化素材(精霊)の数">★2</span></td>
+				<td><span title="所持している★3進化素材(ルーン)の数">★3</span></td>
+				<td><span title="所持している★4進化素材(使徒)の数">★4</span></td>
+				<td><span title="所持している★5進化素材(神器)の数">★5</span></td>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+
+	<table id="es_table" border="1" style="float: left;">
+		<thead>
+			<tr>
+				<th colspan="5">進化素材 不足数</th>
+			</tr>
+			<tr>
+				<td><span title="マウスホバーで説明が表示されます">説明⇒</span></td>
+				<td><span title="不足している★2進化素材(精霊)の数">★2</span></td>
+				<td><span title="不足している★3進化素材(ルーン)の数">★3</span></td>
+				<td><span title="不足している★4進化素材(使徒)の数">★4</span></td>
+				<td><span title="不足している★5進化素材(神器)の数">★5</span></td>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+	
+	<div style="clear: both;"></div>
+
+</body>
+
+</html>

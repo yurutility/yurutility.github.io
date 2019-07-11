@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>簡易集計 - ゆるティリティ</title>
+
+	<link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
+
+
+
+	<link rel="stylesheet" href="yurutility-common.css">
+	<script>
+		const plugins = [
+			'./summary-myunits.js',
+			'./summary-ls.js',
+			'./summary-action-special.js',
+		];
+	</script>
+</head>
+
+<body>
+	<div id="basePanel" style="position: absolute; width: 100%; height: 100%; top: 0px; left: 0px; overflow: auto;">
+		<select id="page_url"><option value="units">ユニット管理</option><option value="view">ユニット一覧</option><option value="summary">ユニット集計</option><option value="materials">育成素材管理</option></select> 
+		<select id="selectList" style="width: 400px;">
+			<option value=""> - 選択 - </option>
+		</select>
+	</div>
+	<div id="help" style="display: none;">
+		<div id="help_top" style="color: #f00; text-align: center; font-size: small;">
+			↑チェックされている小窓はレポート切り替え時に残ります<br>
+			↑ドラッグできます / ダブルクリックで最背面に移動します<br>
+		</div>
+		<h3>使い方</h3>
+		これから書きます
+	</div>
+
+
+
+
+	<script>
+		$('#page_url').on('change', () => {
+			const page = $('#page_url').val();
+			location.href = `${page}.html`;
+		}).val('summary');
+	</script>
+	<!-- script order: data/2019-1.js => yurutility-common.js => summary.js => YURUDATA.get() -->
+	<script src="https://yurutility.cf/data/2019-1.js"></script>
+	<script src="./yurutility-common.js"></script>
+	<!--script src="./summary.js"></script-->
+	<script>
+		// chkSame1: キャラ所持数 (chkSame1[ 最終進化キャラコード ][ ★ランク ])
+		const chkSame1 = {};
+		function calcSameUnit() {
+			for (let id in savedata) {
+				const unit_last = CD[id][24][0]; //最終進化のキャラコード
+				if (!chkSame1[unit_last]) {
+					chkSame1[unit_last] = [0, 0, 0, 0, 0, 0, 0];
+				}
+				let data = savedata[id];
+				data.forEach((v => { // 最大レベル 80 以上！ (★5限定)
+					chkSame1[unit_last][0] = Math.max(chkSame1[unit_last][0], v[0]); // 所有ユニットの最大レベル
+					chkSame1[unit_last][1] = Math.max(chkSame1[unit_last][1], v[1]); // 所有ユニットの最大ＬＳランク
+				}));
+				chkSame1[unit_last][CD[id][2]] = savedata[id].length;
+			}
+		}
+
+		const SummaryList = {};
+		const RegistSummaryQueue = [];
+		function RegistSummary(value, option, func) {
+			// 高速化したい
+			if ($('#selectList').length > 0) {
+				RegistSummaryQueue.forEach(v => {
+					SummaryList[v[0]] = v[2];
+					$('<option>').attr('value', v[0]).text(v[1]).appendTo($('#selectList'));
+				});
+				RegistSummaryQueue.length = 0;
+				if (func) {
+					SummaryList[value] = func;
+					$('<option>').attr('value', value).text(option).appendTo($('#selectList'));
+				}
+			} else {
+				RegistSummaryQueue.push([value, option, func]);
+			}
+		}
+
+		function ChangeSummary() {
+			removeBox();
+			const $this = $(this);
+			$this.find('option[value=""]').text('チェックされていないウィンドウを全て閉じる');
+			const value_id = $this.val();
+			if (SummaryList[value_id]) {
+				SummaryList[value_id]();
+			}
+		}
+
+		//$(()=>
+		{
+			$(document).on('selectstart', () => false);
+			$('#selectList').on('change', ChangeSummary);
+
+			const $help = $('#help').removeAttr('id').remove().show();
+			function showHelp() {
+				const $box = addBox('ヘルプ', $help.clone())
+					.css('left', '500px').css('top', '4px').css('width', '400px');
+
+				$help.find('#help_top').remove();
+				return $box;
+			}
+			showHelp().find('input[type=checkbox]').prop('checked', true);
+		}
+		//);
+
+		function page_start() {
+			loadData();
+			calcSameUnit()
+			RegistSummary();
+
+			// プラグインとして読み込み
+			RegistSummary('ヘルプ', 'ヘルプ - 使い方', showHelp);
+			plugins.forEach((url) => {
+				$('<script>').attr({ 'src': url }).appendTo($('body'));
+			});
+		}
+	</script>
+	<script>YURUDATA.get('https://yurutility.cf/data/201907-1', page_start);</script>
+</body>
+
+</html>

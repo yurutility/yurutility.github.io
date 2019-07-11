@@ -1,0 +1,29 @@
+/* ress.css 説明：https://coliss.com/articles/build-websites/operation/css/modern-css-reset-ress.html */
+
+html,
+body {
+	height: 100%;
+}
+
+button {
+	background-color: #ccc;
+	border: solid 1px #666;
+	padding: 0 8px;
+	font-size: 12px;
+	line-height: 20px;
+	color: #333;
+	/* text-shadow: 0px 1px 0 #333; */
+}
+
+input[type=text] {
+	border: solid 1px #666;
+}
+
+select {
+	border: solid 1px #666;
+
+	-webkit-appearance: menulist;
+	-moz-appearance: menulist;
+	appearance: menulist;
+}
+
