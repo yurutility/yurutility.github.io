@@ -1,0 +1,38 @@
+/* unit.html - ユニット管理 */
+
+
+/* オートコンプリート リスト表示部 */
+.ui-autocomplete {
+	max-height: 450px; /* ドロップダウンの最大高を設定 */
+	overflow-x: hidden;
+	overflow-y: scroll; /* これを入れることで ↓ のトラブル発生(最下段) */
+	
+	z-index: 99999; // 
+}
+.ui-autocomplete .ui-menu-item {
+	border: solid 1px transparent;
+	/* これを入れることで state-active 時のトラブルを修正  */
+}
+.ui-autocomplete .ui-state-active {
+	/* リストの選択要素を見やすく */
+	background: #3cbfd3 !important;
+	color: #ffffff;
+}
+
+img.chara-icon {
+	width: 55px;
+	height: 55px;
+}
+
+unit_name {
+	font-size: small;
+}
+unit_skill2, unit_skill3, unit_skill4 {
+	font-size: small;
+}
+
+th, td {
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
