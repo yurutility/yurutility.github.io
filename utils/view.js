@@ -107,9 +107,12 @@
 		function nameFormatter(id, cell, formatterParams) {
 			const data = id.getData();
 			const name = data.name;
-			return data.gacha
-				? `<span class="nothave">${name} (ガチャ)</span>`
-				: name ;
+			return data.gacha == 100
+				? `<span class="nothave">${name} (メダル)</span>`
+				: data.gacha
+					? `<span class="nothave">${name} (ガチャ)</span>`
+					: name
+					;
 		}
 		let chkSkillName = false;
 		function skillFormatter(id, cell, formatterParams) {
@@ -220,13 +223,13 @@
 					{
 						const data = CD[unit_id];
 						if (filter['level'] == 100) {
-							members.push({ gacha: true, id: data[YD.ID], name: data[YD.NAME], rare: data[YD.RARE], rankstar: "★" + data[YD.RARE], attr: YD.ATTR_J[data[YD.ATTR]], member: [100,1,1,0], data: data[YD.LAST_ID], });
+							members.push({ gacha: gacha_unit[unit_id], id: data[YD.ID], name: data[YD.NAME], rare: data[YD.RARE], rankstar: "★" + data[YD.RARE], attr: YD.ATTR_J[data[YD.ATTR]], member: [100,1,1,0], data: data[YD.LAST_ID], });
 						} else if (filter['level'] == 120) {
 							// 現時点でここを通らない
-							members.push({ gacha: true, id: data[YD.ID], name: data[YD.NAME], rare: data[YD.RARE], rankstar: "★" + data[YD.RARE], attr: YD.ATTR_J[data[YD.ATTR]], member: [100,1,1,0], data: data[YD.LAST_ID], });
+							members.push({ gacha: gacha_unit[unit_id], id: data[YD.ID], name: data[YD.NAME], rare: data[YD.RARE], rankstar: "★" + data[YD.RARE], attr: YD.ATTR_J[data[YD.ATTR]], member: [100,1,1,0], data: data[YD.LAST_ID], });
 						} else {
 							// 現時点でここを通らない
-							members.push({ gacha: true, id: data[YD.ID], name: data[YD.NAME], rare: data[YD.RARE], rankstar: "★" + data[YD.RARE], attr: YD.ATTR_J[data[YD.ATTR]], member: [100,1,1,0], data: data, });
+							members.push({ gacha: gacha_unit[unit_id], id: data[YD.ID], name: data[YD.NAME], rare: data[YD.RARE], rankstar: "★" + data[YD.RARE], attr: YD.ATTR_J[data[YD.ATTR]], member: [100,1,1,0], data: data, });
 						}
 						
 					}
