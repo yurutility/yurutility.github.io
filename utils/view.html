@@ -180,7 +180,7 @@
 		fetch(YURUDATA._url.replace(/[^\/]+$/, YURUDATA.gacha_date)).then((res) => res.json()).then((json) => {
 			YURUDATA.gacha = json;
 			const gacha_unit = YURUDATA.gacha_unit;
-			Object.keys(YURUDATA.gacha).forEach(v => Object.keys(YURUDATA.gacha[v]).forEach(v2 => { gacha_unit[ v2 ] = true }));
+			Object.keys(json).forEach(v => Object.keys(json[v]).forEach(v2 => { gacha_unit[v2] = json[v][v2] }));
 		});
 	</script>
 </body>
