@@ -7,6 +7,7 @@
 				{ title: "ランク", field: "rankstar", width: 40, align: "center", },
 				{
 					title: "ユニット名", field: "name", width: 180,
+					formatter: nameFormatter,
 					cellMouseOver: function (e, cell) { // e - the event object / cell - cell component
 						const id = cell.getData().id;
 						const name = CD[id][YD.NAME];
@@ -103,6 +104,13 @@
 			//},
 		};
 
+		function nameFormatter(id, cell, formatterParams) {
+			const data = id.getData();
+			const name = data.name;
+			return data.gacha
+				? `<span class="nothave">${name} (ガチャ)</span>`
+				: name ;
+		}
 		let chkSkillName = false;
 		function skillFormatter(id, cell, formatterParams) {
 			const d = cell.getData().data[id];
@@ -167,6 +175,8 @@
 			// メンバ一覧
 			const chkSame1 = $('#chkSame1').prop('checked') ? {} : null;
 			const growthed = $('#growthed').prop('checked') ? true : false;
+			const chkGettable = $('#chkGettable').prop('checked') ? true : false;
+			const gacha_unit = Object.assign({}, YD.gacha_unit);
 
 			const members = [];
 			for (let unit_id in savedata) {
@@ -186,7 +196,9 @@
 							break;
 						chkSame1[last_unit_id] = true;
 						data = CD[last_unit_id];
+						gacha_unit[ last_unit_id ] = 0;
 					}
+					gacha_unit[ unit_id ] = 0;
 
 					if (filter['level'] == 100) {
 						members.push({ id: data[YD.ID], name: data[YD.NAME], rare: data[YD.RARE], rankstar: "★" + data[YD.RARE], attr: YD.ATTR_J[data[YD.ATTR]], member: savedata[unit_id][member], data: data[YD.LAST_ID], });
@@ -198,6 +210,26 @@
 						members.push({ id: data[YD.ID], name: data[YD.NAME], rare: data[YD.RARE], rankstar: "★" + data[YD.RARE], attr: YD.ATTR_J[data[YD.ATTR]], member: savedata[unit_id][member], data: data, });
 					}
 
+				}
+			}
+
+			if (chkGettable) {
+				for (let unit_id in gacha_unit)
+				{
+					if (gacha_unit[ unit_id ] > 0)
+					{
+						const data = CD[unit_id];
+						if (filter['level'] == 100) {
+							members.push({ gacha: true, id: data[YD.ID], name: data[YD.NAME], rare: data[YD.RARE], rankstar: "★" + data[YD.RARE], attr: YD.ATTR_J[data[YD.ATTR]], member: [100,1,1,0], data: data[YD.LAST_ID], });
+						} else if (filter['level'] == 120) {
+							// 現時点でここを通らない
+							members.push({ gacha: true, id: data[YD.ID], name: data[YD.NAME], rare: data[YD.RARE], rankstar: "★" + data[YD.RARE], attr: YD.ATTR_J[data[YD.ATTR]], member: [100,1,1,0], data: data[YD.LAST_ID], });
+						} else {
+							// 現時点でここを通らない
+							members.push({ gacha: true, id: data[YD.ID], name: data[YD.NAME], rare: data[YD.RARE], rankstar: "★" + data[YD.RARE], attr: YD.ATTR_J[data[YD.ATTR]], member: [100,1,1,0], data: data, });
+						}
+						
+					}
 				}
 			}
 
@@ -314,7 +346,7 @@
 			// 文字列選択しちゃうの制限
 			$(document.body).on('selectstart', () => false);
 
-			$('input.filter_r, input.filter_t, input.filter_c, #filter_ls, #chkSame1, #growthed').on('change', membersUpdate);
+			$('input.filter_r, input.filter_t, input.filter_c, #filter_ls, #chkSame1, #chkGettable, #growthed').on('change', membersUpdate);
 
 			$('#chkSkillName').on('change', function () {
 				chkSkillName = $('#chkSkillName').prop('checked');

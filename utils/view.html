@@ -139,6 +139,8 @@
 		<label>
 			<input type="checkbox" id="chkSkillName"><span title="スキル効果でなくスキル名で表示されます">スキル名で表示</label>
 		|
+		<label>
+			<input type="checkbox" id="chkGettable"><span title="開催中のガチャで引ける未所持の限定ユニットをリストに追加">開催中ガチャユニット追加</label>
 	</div>
 
 	<div style="position: absolute; width: 100%; height: calc(100% - 80px); top: 50px;">
@@ -171,6 +173,16 @@
 	<script src="./yurutility-common.js"></script>
 	<script src="./view.js"></script>
 	<script>YURUDATA.get('https://yurutility.cf/data/201907-3', page_start);</script>
+	<script>
+		YURUDATA.gacha_date = 'gacha-20190718';
+		YURUDATA.gacha_unit = { };
+		fetch(YURUDATA._url.replace(/[^\/]+$/, YURUDATA.gacha_date)).then((res) => res.json()).then((json) => {
+			YURUDATA.gacha = json;
+			const gacha_unit = YURUDATA.gacha_unit;
+			Object.keys(YURUDATA.gacha).forEach(v => Object.keys(YURUDATA.gacha[v]).forEach(v2 => { gacha_unit[ v2 ] = true }));
+		});
+	</script>
 </body>
+
 
 </html>
