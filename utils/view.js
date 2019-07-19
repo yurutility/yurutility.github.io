@@ -8,6 +8,7 @@
 				{
 					title: "ユニット名", field: "name", width: 180,
 					formatter: nameFormatter,
+					cellDblClick: cellDblClick,
 					cellMouseOver: function (e, cell) { // e - the event object / cell - cell component
 						const id = cell.getData().id;
 						const name = CD[id][YD.NAME];
@@ -116,6 +117,12 @@
 			//},
 		};
 
+		function cellDblClick(e, cell) { // e - the click event object / cell - cell component
+			const name = cell.getData().name;
+			if (confirm(`攻略Wikiで ${name} のページを開きますか？`)) {
+				window.open(`https://xn--jbkk0que.gamerch.com/${name}`, '_blank');
+			}
+		}
 		function nameFormatter(id, cell, formatterParams) {
 			const data = id.getData();
 			const name = data.name;
