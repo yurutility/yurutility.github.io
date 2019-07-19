@@ -119,7 +119,7 @@
 
 		function cellDblClick(e, cell) { // e - the click event object / cell - cell component
 			const name = cell.getData().name;
-			if (confirm(`攻略Wikiで ${name} のページを開きますか？`)) {
+			if (confirm(`攻略Wikiで ${name} のページを開きますか？\n※ブラウザがポップアップブロックするかも`)) {
 				window.open(`https://xn--jbkk0que.gamerch.com/${name}`, '_blank');
 			}
 		}
