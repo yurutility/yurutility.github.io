@@ -88,7 +88,7 @@ function membersUpdate() {
 		const same_num = members[i][1];
 		const detail = members[i][3]; // 各ユニットの育成状態 ( 1:レベル 2:限凸 3:未定 4:未定 )
 		// bug: jQuery 内でキャッシュされてしまうので data-id と data-num は .data() ではなく .attr() で追加
-		const $img = $('<img>').addClass('member_icon').attr('data-id', unit_id).attr('data-num', same_num).attr('title', data[YD.NAME]).attr("src", `${YD.SS_URL}${data[YD.SS_ID]}${YD.SS_EXT}`).attr('width', '110').attr('height', '110');
+		const $img = $('<img>').addClass('member_icon').attr('data-id', unit_id).attr('data-num', same_num).attr('title', data[YD.NAME]).attr("src", `${YD.SS_URL}${data[YD.SS_ID]}${YD.SS_EXT}`).attr('width', '110').attr('height', '110').on('error', function(){this.src = `${YD.SS_URL}00000${YD.SS_EXT}`});
 		if (detail[0] >= 80) { // 育成しているユニット (レベル80以上)
 			$img.addClass('member_icon_growth');
 		}
@@ -311,7 +311,7 @@ $(document).on('click', 'img.member_icon', function (e) {
 	$('#btnDelete').prop('disabled', false);
 
 	$("#project").val(data[YD.NAME]);
-	$("#project-icon").attr("src", `${YD.SS_URL}${data[YD.ID]}${YD.SS_EXT}`);
+	$("#project-icon").attr("src", `${YD.SS_URL}${data[YD.ID]}${YD.SS_EXT}`).on('error', function(){this.src = `${YD.SS_URL}00000${YD.SS_EXT}`});
 
 	$('img.member_icon').removeClass('member_icon_selected');
 	$this.addClass('member_icon_selected');
@@ -380,7 +380,7 @@ $("#project").autocomplete({
 		const unit_id = ui.item[YD.ID];
 		const name = ui.item[YD.NAME];
 		$("#project").val(name);
-		$("#project-icon").attr("src", `${YD.SS_URL}${ui.item[YD.SS_ID]}${YD.SS_EXT}`);
+		$("#project-icon").attr("src", `${YD.SS_URL}${ui.item[YD.SS_ID]}${YD.SS_EXT}`).on('error', function(){this.src = `${YD.SS_URL}00000${YD.SS_EXT}`});
 
 		const data = CD[unit_id];
 		const rare = data[YD.RARE];
@@ -424,7 +424,7 @@ $("#project").autocomplete({
 	const name = item[YD.NAME];
 	return $("<li>") //【要改造】 .html() 使わない方式へ
 		//.append(`<div><img class="chara-icon" src="${YD.SS_URL}${item[YD.SS_ID]}${YD.SS_EXT}"> ${name}</div>`)
-		.append( $('<div>').append( $('<img>').attr("src", `${YD.SS_URL}${item[YD.SS_ID]}${YD.SS_EXT}`).addClass("chara-icon") ).append( $('<span>').text(" " + name) ) )
+		.append( $('<div>').append( $('<img>').attr("src", `${YD.SS_URL}${item[YD.SS_ID]}${YD.SS_EXT}`).on('error', function(){this.src = `${YD.SS_URL}00000${YD.SS_EXT}`}).addClass("chara-icon") ).append( $('<span>').text(" " + name) ) )
 		.appendTo(ul);
 };
 
