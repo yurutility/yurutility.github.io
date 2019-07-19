@@ -11,9 +11,21 @@
 					cellMouseOver: function (e, cell) { // e - the event object / cell - cell component
 						const id = cell.getData().id;
 						const name = CD[id][YD.NAME];
+
+						//console.log(`mouse:${e.pageX}x${e.pageY} window:${$(window).height()}`);
+						const window_height = $(window).height();
+						const mouseY = e.pageY;
+
+						const boxPosY = (mouseY > window_height - 240) ? mouseY - 40 - 150 : mouseY + 40 ;
+						let boxPosX = -10;
+						for (let idx = 1; idx <= 2; idx++) {
+							boxPosX += config.columns[idx].width;
+						}
+
 						$('#chara_name').text(name);
-						//$('#chara_icon').attr('src', `${ss_url}${id}${img_ext}`);
-						//$('#chara_info').show();
+						$('#chara_icon').attr('src', `${YD.SS_URL}${id}${YD.SS_EXT}`);
+						$('#chara_info').show().css({ top: boxPosY, left: boxPosX });
+
 					},
 					cellMouseOut: function (e, cell) { // e - the event object / cell - cell component
 						$('#chara_info').hide();
@@ -274,73 +286,6 @@
 			return members;
 		}
 
-/*
-		function minMaxFilterEditor(cell, onRendered, success, cancel, editorParams) {
-			var container = $("<span></span>")
-
-			//create and style inputs
-			var end = $("<input type='number' placeholder='Max' min='0' max='100'/><br>");
-			var start = $("<input type='number' placeholder='Min' min='0' max='100'/><br>");
-
-			container.append(start);//.append(end);
-
-			var inputs = $("input", container);
-
-			inputs.css({
-				"padding": "4px",
-				"width": "90%",
-				"box-sizing": "border-box",
-			})
-				.val(cell.getValue());
-
-			function buildValues() {
-				return {
-					start: start.val(),
-					end: end.val(),
-				};
-			}
-
-			//submit new value on blur
-			inputs.on("change blur", function (e) {
-				success(buildValues());
-			});
-
-			//submit new value on enter
-			inputs.on("keydown", function (e) {
-				if (e.keyCode == 13) {
-					success(buildValues());
-				}
-
-				if (e.keyCode == 27) {
-					cancel();
-				}
-			});
-
-			return container;
-		}
-
-		function minMaxFilterFunction(headerValue, rowValue, rowData, filterParams) {
-			//headerValue - the value of the header filter element
-			//rowValue - the value of the column in this row
-			//rowData - the data for the row being filtered
-			//filterParams - params object passed to the headerFilterFuncParams property
-			if (rowValue) {
-				if (headerValue.start != "") {
-					if (headerValue.end != "") {
-						return rowValue >= headerValue.start && rowValue <= headerValue.end;
-					} else {
-						return rowValue >= headerValue.start;
-					}
-				} else {
-					if (headerValue.end != "") {
-						return rowValue <= headerValue.end;
-					}
-				}
-			}
-			return false; //must return a boolean, true if it passes the filter.
-		}
-*/
-
 		let table;
 		//$(() =>
 		{
@@ -366,9 +311,20 @@
 			table = new Tabulator("#example-table", config);
 		}
 		//);
+
+		YURUDATA.gacha_unit = { };
+		YURUDATA.gacha_type = { };
+
 		function page_start(){
 			loadData();
-			membersUpdate();
+
+			fetch(YURUDATA._url.replace(/[^\/]+$/, YURUDATA.gacha_date)).then((res) => res.json()).then((json) => {
+				YURUDATA.gacha = json;
+				const gacha_unit = YURUDATA.gacha_unit;
+				const gacha_type = YURUDATA.gacha_type;
+				Object.keys(json).forEach(v => Object.keys(json[v]).forEach(v2 => { gacha_unit[v2] = json[v][v2]; gacha_type[v2] = v; }));
+				membersUpdate();
+			});
 		}
 
 

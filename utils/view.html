@@ -145,8 +145,7 @@
 		<div id="example-table"></div>
 	</div>
 
-	<div id="chara_info"
-		style="display: none; position: absolute; width: 300px; height: 300px; top: 200px; left: 300px; border: solid 1px; #000; background-color: #fff; padding: 8px;">
+	<div id="chara_info" style="display: none; position: absolute; width: 200px; height: 150px; top: 200px; left: 300px; border: solid 1px; #000; background-color: #fff; padding: 8px;">
 		<span id="chara_name"></span><br>
 		<img id="chara_icon" src="">
 	</div>
@@ -171,17 +170,7 @@
 	<script src="./yurutility-common.js"></script>
 	<script src="./view.js"></script>
 	<script>YURUDATA.get('https://yurutility.cf/data/201907-3', page_start);</script>
-	<script>
-		YURUDATA.gacha_date = 'gacha-20190719';
-		YURUDATA.gacha_unit = { };
-		YURUDATA.gacha_type = { };
-		fetch(YURUDATA._url.replace(/[^\/]+$/, YURUDATA.gacha_date)).then((res) => res.json()).then((json) => {
-			YURUDATA.gacha = json;
-			const gacha_unit = YURUDATA.gacha_unit;
-			const gacha_type = YURUDATA.gacha_type;
-			Object.keys(json).forEach(v => Object.keys(json[v]).forEach(v2 => { gacha_unit[v2] = json[v][v2]; gacha_type[v2] = v; }));
-		});
-	</script>
+	<script>YURUDATA.gacha_date = 'gacha-20190719';</script>
 </body>
 
 
