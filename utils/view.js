@@ -24,7 +24,7 @@
 				//{ title: "限凸", field: "data.7" },
 				//{ title: "HP", field: "data.13", width: 60, align: "right", },
 				{
-					title: "HP", field: `data.${YD.HP}`, formatter: "progress",
+					title: "HP", field: `status.HP`, formatter: "progress",
 					formatterParams: {
 						max: 3500,
 						min: 1000,
@@ -36,7 +36,7 @@
 				},
 				//{ title: "攻", field: "data.14", width: 60, align: "right", },
 				{
-					title: "攻撃力", field: `data.${YD.ATK}`, formatter: "progress",
+					title: "攻撃力", field: `status.ATK`, formatter: "progress",
 					formatterParams: {
 						max: 2500,
 						min: 1000,
@@ -48,7 +48,7 @@
 				},
 				//{ title: "防", field: "data.15", width: 60, align: "right", },
 				{
-					title: "防御力", field: `data.${YD.DEF}`, formatter: "progress",
+					title: "防御力", field: `status.DEF`, formatter: "progress",
 					formatterParams: {
 						max: 2000,
 						min: 500,
@@ -62,7 +62,7 @@
 
 				//{ title: "回", field: "data.16", width: 50, align: "right", },
 				{
-					title: "回復力", field: `data.${YD.ACC}`, formatter: "progress",
+					title: "回復力", field: `status.ACC`, formatter: "progress",
 					formatterParams: {
 						max: 75,
 						min: 25,
@@ -76,7 +76,7 @@
 				},
 				//{ title: "早", field: "data.17", width: 50, align: "right", },
 				{
-					title: "素早さ", field: `data.${YD.SPD}`, formatter: "progress",
+					title: "素早さ", field: `status.SPD`, formatter: "progress",
 					formatterParams: {
 						max: 65,
 						min: 25,
@@ -107,10 +107,10 @@
 		function nameFormatter(id, cell, formatterParams) {
 			const data = id.getData();
 			const name = data.name;
-			return data.gacha == 100
-				? `<span class="nothave">${name} (メダル)</span>`
+			return data.gacha >= 100
+				? `<span class="nothave" title="メダル交換所">${name} (${data.gacha}枚)</span>`
 				: data.gacha
-					? `<span class="nothave">${name} (ガチャ)</span>`
+					? `<span class="nothave" title="${YD.gacha_type[data.id]}">${name} (${data.gacha}%)</span>`
 					: name
 					;
 		}
@@ -204,10 +204,14 @@
 					gacha_unit[ unit_id ] = 0;
 
 					if (filter['level'] == 100) {
-						members.push({ id: data[YD.ID], name: data[YD.NAME], rare: data[YD.RARE], rankstar: "★" + data[YD.RARE], attr: YD.ATTR_J[data[YD.ATTR]], member: savedata[unit_id][member], data: data[YD.LAST_ID], });
+						const status = { HP: data[YD.HP], ATK: data[YD.ATK], DEF: data[YD.DEF], SPD: data[YD.SPD], ACC: data[YD.ACC] }
+						members.push({ id: data[YD.ID], name: data[YD.NAME], rare: data[YD.RARE], rankstar: "★" + data[YD.RARE], attr: YD.ATTR_J[data[YD.ATTR]], member: savedata[unit_id][member], data: data[YD.LAST_ID], status: status, });
 					} else if (filter['level'] == 120) {
-						// 現時点でここを通らない
-						members.push({ id: data[YD.ID], name: data[YD.NAME], rare: data[YD.RARE], rankstar: "★" + data[YD.RARE], attr: YD.ATTR_J[data[YD.ATTR]], member: savedata[unit_id][member], data: data[YD.LAST_ID], });
+						const status = (data[YD.HP120] > 0)
+							? { HP: data[YD.HP120], ATK: data[YD.ATK120], DEF: data[YD.DEF120], SPD: data[YD.SPD120], ACC: data[YD.ACC120] }
+							: { HP: data[YD.HP], ATK: data[YD.ATK], DEF: data[YD.DEF], SPD: data[YD.SPD], ACC: data[YD.ACC] }
+							;
+						members.push({ id: data[YD.ID], name: data[YD.NAME], rare: data[YD.RARE], rankstar: "★" + data[YD.RARE], attr: YD.ATTR_J[data[YD.ATTR]], member: savedata[unit_id][member], data: data[YD.LAST_ID], status: status, });
 					} else {
 						// 現時点でここを通らない
 						members.push({ id: data[YD.ID], name: data[YD.NAME], rare: data[YD.RARE], rankstar: "★" + data[YD.RARE], attr: YD.ATTR_J[data[YD.ATTR]], member: savedata[unit_id][member], data: data, });
@@ -223,10 +227,14 @@
 					{
 						const data = CD[unit_id];
 						if (filter['level'] == 100) {
-							members.push({ gacha: gacha_unit[unit_id], id: data[YD.ID], name: data[YD.NAME], rare: data[YD.RARE], rankstar: "★" + data[YD.RARE], attr: YD.ATTR_J[data[YD.ATTR]], member: [100,1,1,0], data: data[YD.LAST_ID], });
+							const status = { HP: data[YD.HP], ATK: data[YD.ATK], DEF: data[YD.DEF], SPD: data[YD.SPD], ACC: data[YD.ACC] }
+							members.push({ gacha: gacha_unit[unit_id], id: data[YD.ID], name: data[YD.NAME], rare: data[YD.RARE], rankstar: "★" + data[YD.RARE], attr: YD.ATTR_J[data[YD.ATTR]], member: [100,1,1,0], data: data[YD.LAST_ID], status: status, });
 						} else if (filter['level'] == 120) {
-							// 現時点でここを通らない
-							members.push({ gacha: gacha_unit[unit_id], id: data[YD.ID], name: data[YD.NAME], rare: data[YD.RARE], rankstar: "★" + data[YD.RARE], attr: YD.ATTR_J[data[YD.ATTR]], member: [100,1,1,0], data: data[YD.LAST_ID], });
+							const status = (data[YD.HP120] > 0)
+								? { HP: data[YD.HP120], ATK: data[YD.ATK120], DEF: data[YD.DEF120], SPD: data[YD.SPD120], ACC: data[YD.ACC120] }
+								: { HP: data[YD.HP], ATK: data[YD.ATK], DEF: data[YD.DEF], SPD: data[YD.SPD], ACC: data[YD.ACC] }
+								;
+							members.push({ gacha: gacha_unit[unit_id], id: data[YD.ID], name: data[YD.NAME], rare: data[YD.RARE], rankstar: "★" + data[YD.RARE], attr: YD.ATTR_J[data[YD.ATTR]], member: [100,1,1,0], data: data[YD.LAST_ID], status: status, });
 						} else {
 							// 現時点でここを通らない
 							members.push({ gacha: gacha_unit[unit_id], id: data[YD.ID], name: data[YD.NAME], rare: data[YD.RARE], rankstar: "★" + data[YD.RARE], attr: YD.ATTR_J[data[YD.ATTR]], member: [100,1,1,0], data: data, });

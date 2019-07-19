@@ -87,11 +87,9 @@
 			<input type="radio" name="status" class="filter_c" value="1">設定値</label>
 -->
 		<label>
-			<input type="radio" name="status" class="filter_c" value="100" checked>★5 Lv100</label>
-		<!--
+			<input type="radio" name="status" class="filter_c" value="100">★5 Lv100</label>
 		<label>
-			<input type="radio" name="status" class="filter_c" value="120">★5 Lv120</label>
--->
+			<input type="radio" name="status" class="filter_c" value="120" checked="checked"><span title="限界突破キャラはレベル120状態のステータスで表示">★5 Lv120</span></label>
 		|
 		<select id="filter_ls" style="width: 80px;">
 			<option value="">リーダースキル</option>
@@ -135,13 +133,12 @@
 			<input type="checkbox" id="a6" class="filter_a">３単</label>
 -->
 		<label>
-			<input type="checkbox" id="chkSame1"><span
-				title="同じユニット(進化含む)が複数いる場合でも ★5の１キャラとして表示されます">同キャラはまとめる</span></label>
+			<input type="checkbox" id="chkSame1" checked="checked"><span title="同じユニット(進化含む)が複数いる場合でも ★5の１キャラとして表示されます">同キャラはまとめる</span></label>
 		<label>
 			<input type="checkbox" id="chkSkillName"><span title="スキル効果でなくスキル名で表示されます">スキル名で表示</label>
 		|
 		<label>
-			<input type="checkbox" id="chkGettable"><span title="開催中のガチャで引ける未所持の限定ユニットをリストに追加">開催中ガチャユニット追加</label>
+			<input type="checkbox" id="chkGettable" checked="checked"><span title="開催中のガチャで引ける未所持の限定ユニットをリストに追加">開催中ガチャユニット追加</label>
 	</div>
 
 	<div style="position: absolute; width: 100%; height: calc(100% - 80px); top: 50px;">
@@ -175,12 +172,14 @@
 	<script src="./view.js"></script>
 	<script>YURUDATA.get('https://yurutility.cf/data/201907-3', page_start);</script>
 	<script>
-		YURUDATA.gacha_date = 'gacha-20190718';
+		YURUDATA.gacha_date = 'gacha-20190719';
 		YURUDATA.gacha_unit = { };
+		YURUDATA.gacha_type = { };
 		fetch(YURUDATA._url.replace(/[^\/]+$/, YURUDATA.gacha_date)).then((res) => res.json()).then((json) => {
 			YURUDATA.gacha = json;
 			const gacha_unit = YURUDATA.gacha_unit;
-			Object.keys(json).forEach(v => Object.keys(json[v]).forEach(v2 => { gacha_unit[v2] = json[v][v2] }));
+			const gacha_type = YURUDATA.gacha_type;
+			Object.keys(json).forEach(v => Object.keys(json[v]).forEach(v2 => { gacha_unit[v2] = json[v][v2]; gacha_type[v2] = v; }));
 		});
 	</script>
 </body>
