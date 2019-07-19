@@ -27,12 +27,6 @@ function createSearchWords()
 
 const compareUnits = [ ];
 
-function membersUpdate() {
-	
-}
-
-
-
 // $(() => // <script> を <body> の最後に移動したので必要な DOM は既に使える
 {
 
@@ -53,11 +47,8 @@ $(document.body).on('selectstart', () => false);
 const autocomplete_opt = {
 	minLength: 0,
 	source: function (request, response) {
-		// 【バグ】アルファベット( EX 接頭キャラ ) の挙動がおかしい
 		const word = HanToZen(hiraToKana(request.term.toUpperCase().replace(/[ａ-ｚ]$/i, '')));
-		//console.log(`search [${word}][length=${word.length}]`);
 		if (word.length < 2) {
-			//console.log(`done. [${word}] is empty`);
 			response([]);
 			return;
 		}
@@ -85,17 +76,11 @@ const autocomplete_opt = {
 					}
 				}
 			}
-			// TODO: 空っぽの時にアイコン削除
-
-			//SearchWords.forEach((i, v) => { if (i.word.indexOf(word) >= 0) { list.push(i) } });
 			list.sort((a, b) => { a[0] < b[0] ? 1 : -1 });
 			response(list);
-			//console.log(`done. [${word}] length=${list.length}`);
 		}
 	},
 	focus: function (event, ui) {
-		//$("#project").val(ui.item.label);
-		// TODO: 区別できるハイライト
 		return false;
 	},
 	select: function (event, ui) {
@@ -136,18 +121,8 @@ function addUnit( unit_id ) {
 
 	$table.find(".unit_icon").attr("src", `${YD.SS_URL}${unit_id}${YD.SS_EXT}`);
 
-	if (data[ YD.HP120 ] == 0) {
-		// 限界突破 なし
-		$table.find(".unit_limit120").text("×");
-		$table.find(".unit_lv120").prop('checked', false).prop('disabled', true);
-	} else {
-		// 限界突破 Lv.120
-		$table.find(".unit_limit120").text("○");
-		$table.find(".unit_lv120").prop('checked', false).on('change', Lv100_120);
-	}
-
 	const $box = addBox(data[YD.NAME], $table).data('id', unit_id).css('height', tmpl_height + 40);
-	$box.find('input[type=checkbox]').prop('checked', true).on('change', function(){ $box.remove() })
+	$box.find('input[type=checkbox]').prop('checked', true).on('change', function(){ $box.remove(); listAutoSave(); })
 	$box.on('drag', listAutoSave);
 
 	return $box;
@@ -161,15 +136,6 @@ function listAutoSave() {
 	timerListSave = setTimeout(() => {
 		localStorage.setItem('compare_units', JSON.stringify( $('#basePanel').find('div.ui-widget-content:has(input[type=checkbox])').map((i,v) => [ [$(v).data('id'), $(v).css('left'), $(v).css('top') ] ]).get() ) );
 	}, 2 * 1000);
-}
-
-function Lv100_120() {
-	const $check = $(this);
-	const $lv120 = $check.prop('checked');
-	const $table = $check.parent().parent().parent().parent().parent();
-	$table.find('.unit_hp, .unit_atk, .unit_def, .unit_spd, .unit_acc').each((i,v) => {
-		$(v).text( $lv120 ? $(v).data('lv120') : $(v).data('lv100') )
-	});
 }
 
 // 検索窓からユニット検索 ～ 選択で追加
@@ -186,8 +152,7 @@ $searchBox
 .autocomplete( autocomplete_opt ).autocomplete("instance")._renderItem = function (ul, item) {
 	const unit_id = item[YD.ID];
 	const name = item[YD.NAME];
-	return $("<li>") //【要改造】 .html() 使わない方式へ
-		//.append(`<div><img class="chara-icon" src="${YD.SS_URL}${item[YD.SS_ID]}${YD.SS_EXT}"> ${name}</div>`)
+	return $("<li>")
 		.append( $('<div>').append( $('<img>').attr("src", `${YD.SS_URL}${item[YD.SS_ID]}${YD.SS_EXT}`).addClass("chara-icon") ).append( $('<span>').text(" " + name) ) )
 		.appendTo(ul);
 };
