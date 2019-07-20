@@ -8,7 +8,11 @@
 			.css('white-space', 'nowrap')
 			.css('overflow', 'hidden')
 			//.css('max-width', '0');
-			.append( $('<span>').addClass('chara_name').text(chara_data[1]) );
+			.data('id', chara_data[YD.ID])
+			.on('dblclick', openWikiPage)
+			.on('mouseover', mouseOver)
+			.on('mouseout', mouseOut)
+			.append( $('<span>').addClass('chara_name').text(chara_data[YD.NAME]) );
 		const $tr = $('<tr>')
 				.append($td_name)
 				//.append($('<td>').text(same_data[3]).css('text-align', 'right'))

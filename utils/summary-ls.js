@@ -26,13 +26,18 @@
 			if (LS_TOP_MAP[chara_data[12]] >= 0) {
 				const same_data = chkSame1[unit_id];
 				// 名前枠を 限凸 状態や 最大Lv や リーダースキル や 装備枠解放 の状態で変化
-				const $td_name = $('<td>').text(chara_data[1])
+				const $td_name = $('<td>').text(chara_data[YD.NAME])
 					.css('background-color', same_data[0] >= 100 ? '#ccccff' : '')
 					.css('color', same_data[1] > 1 ? '#f00' : '')
 					.css('text-overflow', 'ellipsis')
 					.css('white-space', 'nowrap')
 					.css('overflow', 'hidden')
 					//.css('max-width', '0');
+					.data('id', chara_data[YD.ID])
+					.on('dblclick', openWikiPage)
+					.on('mouseover', mouseOver)
+					.on('mouseout', mouseOut);
+
 				$('<tr>')
 					.append($td_name)
 					.append($('<td>').text(same_data[3] || '　').css('text-align', 'right'))

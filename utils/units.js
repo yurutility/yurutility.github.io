@@ -317,6 +317,27 @@ $(document).on('click', 'img.member_icon', function (e) {
 	$this.addClass('member_icon_selected');
 });
 
+$('#project-icon').on('dblclick', function() {
+	const $img = $('img.member_icon_selected')
+	if ($img.length == 0) {
+		return;
+	}
+	const unit_id = $img.data('id');
+	const name = CD[unit_id][YD.NAME];
+	if (confirm(`攻略Wikiで ${name} のページを開きますか？\n※ブラウザがポップアップブロックするかも`)) {
+		window.open(`https://xn--jbkk0que.gamerch.com/${name}`, '_blank');
+	}
+});
+// 動的に生成される HTML 上の onClick イベント補足
+$(document).on('dblclick', 'img.member_icon', function (e) {
+	const unit_id = $(this).data('id');
+	const name = CD[unit_id][YD.NAME];
+	if (confirm(`攻略Wikiで ${name} のページを開きますか？\n※ブラウザがポップアップブロックするかも`)) {
+		window.open(`https://xn--jbkk0que.gamerch.com/${name}`, '_blank');
+	}
+});
+
+
 // 検索窓フォーカス時に候補一覧表示
 $("#project").on('focus', function () {
 	$("#project").autocomplete("search");

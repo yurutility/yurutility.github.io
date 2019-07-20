@@ -41,8 +41,10 @@
 		これから書きます
 	</div>
 
-
-
+	<div id="chara_info" style="display: none; position: absolute; width: 200px; height: 150px; top: 0px; left: 0px; border: solid 1px; #000; background-color: #fff; padding: 8px; z-index: 99999">
+		<span id="chara_name"></span><br>
+		<img id="chara_icon" src="">
+	</div>
 
 	<script>
 		$('#page_url').on('change', () => {
@@ -99,6 +101,39 @@
 			if (SummaryList[value_id]) {
 				SummaryList[value_id]();
 			}
+		}
+
+		function openWikiPage(e) {
+			let unit_id = $(e.target).data('id');
+			if (!unit_id) {
+				unit_id = $(e.target).parent().data('id');
+			}
+			if (unit_id > 0) {
+				const name = CD[unit_id][YD.NAME];
+				if (confirm(`攻略Wikiで ${name} のページを開きますか？\n※ブラウザがポップアップブロックするかも`)) {
+					window.open(`https://xn--jbkk0que.gamerch.com/${name}`, '_blank');
+				}
+			}
+		}
+
+		function mouseOver(e) {
+			let unit_id = $(e.target).data('id');
+			if (!unit_id) {
+				unit_id = $(e.target).parent().data('id');
+			}
+			if (unit_id > 0) {
+				const window_height = $(window).height();
+				const mouseY = e.pageY;
+				const mouseX = e.pageX;
+				const boxPosY = (mouseY > window_height - 240) ? mouseY - 40 - 150 : mouseY + 40 ;
+				const boxPosX = mouseX + 40;
+				$('#chara_name').text( CD[unit_id][YD.NAME] );
+				$('#chara_icon').attr('src', `${YD.SS_URL}${unit_id}${YD.SS_EXT}`);
+				$('#chara_info').show().css({ top: boxPosY, left: boxPosX });
+			}
+		};
+		function mouseOut() {
+			$('#chara_info').hide();
 		}
 
 		//$(()=>

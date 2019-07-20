@@ -119,13 +119,19 @@ function addUnit( unit_id ) {
 	$table.find(".unit_skill4").text( data[ YD.SKILL4 ] ? data[ YD.SKILL4 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL4 ] ? data[ YD.SKILL4 ][ 2 ] : ""  );
 	$table.find(".unit_ls").text( data[ YD.LS ] );
 
-	$table.find(".unit_icon").attr("src", `${YD.SS_URL}${unit_id}${YD.SS_EXT}`);
+	$table.find(".unit_icon").attr("src", `${YD.SS_URL}${unit_id}${YD.SS_EXT}`).on('dblclick', openWikiPage.bind(null, data[YD.NAME]));
 
 	const $box = addBox(data[YD.NAME], $table).data('id', unit_id).css('height', tmpl_height + 40);
 	$box.find('input[type=checkbox]').prop('checked', true).on('change', function(){ $box.remove(); listAutoSave(); })
 	$box.on('drag', listAutoSave);
 
 	return $box;
+}
+
+function openWikiPage(name) {
+	if (confirm(`攻略Wikiで ${name} のページを開きますか？\n※ブラウザがポップアップブロックするかも`)) {
+		window.open(`https://xn--jbkk0que.gamerch.com/${name}`, '_blank');
+	}
 }
 
 let timerListSave; // 自動保存タイマー
