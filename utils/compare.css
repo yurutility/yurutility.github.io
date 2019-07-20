@@ -24,10 +24,10 @@ img.chara-icon {
 	height: 55px;
 }
 
-unit_name {
+.unit_name {
 	font-size: small;
 }
-unit_skill2, unit_skill3, unit_skill4 {
+.unit_skill2, .unit_skill3, .unit_skill4 {
 	font-size: small;
 }
 
