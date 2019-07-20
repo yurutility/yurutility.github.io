@@ -34,7 +34,7 @@
 					.css('overflow', 'hidden')
 					//.css('max-width', '0');
 					.data('id', chara_data[YD.ID])
-					.on('dblclick', openWikiPage)
+					.on('dblclick', addUnit.bind(null, chara_data[YD.ID]))
 					.on('mouseover', mouseOver)
 					.on('mouseout', mouseOut);
 
