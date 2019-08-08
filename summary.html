@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>簡易集計 - ゆるティリティ</title>
+
+	<link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
+
+
+
+	<link rel="stylesheet" href="yurutility-common.css">
+	<script>
+		const plugins = [
+			'./summary-myunits.js',
+			'./summary-ls.js',
+			'./summary-action-special.js',
+		];
+	</script>
+	<style>
+	.unit_name {
+		font-size: small;
+	}
+	.unit_skill2, .unit_skill3, .unit_skill4 {
+		font-size: small;
+	}
+	th, td {
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		overflow: hidden;
+	}
+	</style>
+
+</head>
+
+<body>
+	<div id="basePanel" style="position: absolute; width: 100%; height: 100%; top: 0px; left: 0px; overflow: auto;">
+		<select id="page_url"><option value="units">ユニット管理</option><option value="view">ユニット一覧</option><option value="summary">ユニット集計</option><option value="materials">育成素材管理</option><option value="compare">ユニット比較</option><option value="help">ヘルプ</option></select> 
+		<select id="selectList" style="width: 400px;">
+			<option value=""> - 選択 - </option>
+		</select>
+	</div>
+	<div id="help" style="display: none;">
+		<div id="help_top" style="color: #f00; text-align: center; font-size: small;">
+			↑チェックされている小窓はレポート切り替え時に残ります<br>
+			↑ドラッグできます / ダブルクリックで最背面に移動します<br>
+		</div>
+		<h3>使い方</h3>
+		これから書きます
+	</div>
+
+	<table id="tmpl" border="0" style="width: 100%;">
+		<!-- tr>
+			<th colspan="2">
+				<span class="unit_name">-</span>
+			</th>
+		</tr -->
+		<tr><th colspan="3"><img class="unit_icon" width="110" height="110" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="></th></tr>
+		<tr><th style="width: 60px;">HP</th><td><span style="width: 50px;" class="unit_hp"></td><td><span style="width: 50px;" class="unit_hp120"></td></tr>
+		<tr><th>攻</th><td><span class="unit_atk"></td><td><span class="unit_atk120"></td></tr>
+		<tr><th>防</th><td><span class="unit_def"></td><td><span class="unit_def120"></td></tr>
+		<tr><th>回</th><td><span class="unit_acc"></td><td><span class="unit_acc120"></td></tr>
+		<tr><th>早</th><td><span class="unit_spd"></td><td><span class="unit_spd120"></td></tr>
+		<tr><th>2技</th><td colspan="2"><span class="unit_skill2"></span></td></tr>
+		<tr><th>3技</th><td colspan="2"><span class="unit_skill3"></span></td></tr>
+		<tr><th>4技</th><td colspan="2"><span class="unit_skill4"></span></td></tr>
+		<tr><th>LS</th> <td colspan="2"><span class="unit_ls"></span></td></tr>
+	</table>
+
+	<div id="chara_info" style="display: none; position: absolute; width: 200px; height: 150px; top: 0px; left: 0px; border: solid 1px; #000; background-color: #fff; padding: 8px; z-index: 99999">
+		<span id="chara_name"></span><br>
+		<img id="chara_icon" src="">
+	</div>
+
+	<script>
+		$('#page_url').on('change', () => {
+			const page = $('#page_url').val();
+			location.href = `${page}.html`;
+		}).val('summary');
+	</script>
+	<!-- script order: data/2019-1.js => yurutility-common.js => summary.js => YURUDATA.get() -->
+	<script src="https://yurutility.cf/data/2019-1.js"></script>
+	<script src="./yurutility-common.js"></script>
+	<!--script src="./summary.js"></script-->
+	<script>
+		// chkSame1: キャラ所持数 (chkSame1[ 最終進化キャラコード ][ ★ランク ])
+		const chkSame1 = {};
+		function calcSameUnit() {
+			for (let id in savedata) {
+				const unit_last = CD[id][24][0]; //最終進化のキャラコード
+				if (!chkSame1[unit_last]) {
+					chkSame1[unit_last] = [0, 0, 0, 0, 0, 0, 0];
+				}
+				let data = savedata[id];
+				data.forEach((v => { // 最大レベル 80 以上！ (★5限定)
+					chkSame1[unit_last][0] = Math.max(chkSame1[unit_last][0], v[0]); // 所有ユニットの最大レベル
+					chkSame1[unit_last][1] = Math.max(chkSame1[unit_last][1], v[1]); // 所有ユニットの最大ＬＳランク
+				}));
+				chkSame1[unit_last][CD[id][2]] = savedata[id].length;
+			}
+		}
+
+		const SummaryList = {};
+		const RegistSummaryQueue = [];
+		function RegistSummary(value, option, func) {
+			// 高速化したい
+			if ($('#selectList').length > 0) {
+				RegistSummaryQueue.forEach(v => {
+					SummaryList[v[0]] = v[2];
+					$('<option>').attr('value', v[0]).text(v[1]).appendTo($('#selectList'));
+				});
+				RegistSummaryQueue.length = 0;
+				if (func) {
+					SummaryList[value] = func;
+					$('<option>').attr('value', value).text(option).appendTo($('#selectList'));
+				}
+			} else {
+				RegistSummaryQueue.push([value, option, func]);
+			}
+		}
+
+		function ChangeSummary() {
+			removeBox();
+			const $this = $(this);
+			$this.find('option[value=""]').text('チェックされていないウィンドウを全て閉じる');
+			const value_id = $this.val();
+			if (SummaryList[value_id]) {
+				SummaryList[value_id]();
+			}
+		}
+
+		function addUnit( unit_id ) {
+			const data = CD[unit_id];
+			const rare = data[YD.RARE];
+			const attr = data[YD.ATTR];
+
+			const $table = $tmpl.clone().data('id', unit_id);
+
+			$table.find(".unit_name").text( data[ YD.NAME ] );
+			$table.find(".unit_hp") .text( data[ YD.HP ]  );
+			$table.find(".unit_atk").text( data[ YD.ATK ] );
+			$table.find(".unit_def").text( data[ YD.DEF ] );
+			$table.find(".unit_spd").text( data[ YD.SPD ] );
+			$table.find(".unit_acc").text( data[ YD.ACC ] );
+			if (data[ YD.HP120 ] != 0) {
+				$table.find(".unit_hp120") .text( '(' + data[ YD.HP120 ]  + ')').css( 'color', data[ YD.HP  ] == data[ YD.HP120  ] ? 'inherit' : 'red' );
+				$table.find(".unit_atk120").text( '(' + data[ YD.ATK120 ] + ')').css( 'color', data[ YD.ATK ] == data[ YD.ATK120 ] ? 'inherit' : 'red' );
+				$table.find(".unit_def120").text( '(' + data[ YD.DEF120 ] + ')').css( 'color', data[ YD.DEF ] == data[ YD.DEF120 ] ? 'inherit' : 'red' );
+				$table.find(".unit_spd120").text( '(' + data[ YD.SPD120 ] + ')').css( 'color', data[ YD.SPD ] == data[ YD.SPD120 ] ? 'inherit' : 'red' );
+				$table.find(".unit_acc120").text( '(' + data[ YD.ACC120 ] + ')').css( 'color', data[ YD.ACC ] == data[ YD.ACC120 ] ? 'inherit' : 'red' );
+			}
+			$table.find(".unit_skill2").text( data[ YD.SKILL2 ] ? data[ YD.SKILL2 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL2 ] ? data[ YD.SKILL2 ][ 2 ] : "" );
+			$table.find(".unit_skill3").text( data[ YD.SKILL3 ] ? data[ YD.SKILL3 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL3 ] ? data[ YD.SKILL3 ][ 2 ] : ""  );
+			$table.find(".unit_skill4").text( data[ YD.SKILL4 ] ? data[ YD.SKILL4 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL4 ] ? data[ YD.SKILL4 ][ 2 ] : ""  );
+			$table.find(".unit_ls").text( data[ YD.LS ] );
+
+			$table.find(".unit_icon").attr("src", `${YD.SS_URL}${unit_id}${YD.SS_EXT}`).on('dblclick', openWikiPage.bind(null, data[YD.NAME]));
+
+			const $box = addBox(data[YD.NAME], $table).data('id', unit_id).css('height', tmpl_height + 40);
+			$box.find('input[type=checkbox]').prop('checked', true).on('change', function(){ $box.remove(); listAutoSave(); })
+			$box.on('drag', listAutoSave);
+
+			return $box;
+		}
+
+		function openWikiPage(name) {
+			if (confirm(`攻略Wikiで ${name} のページを開きますか？\n※ブラウザがポップアップブロックするかも`)) {
+				window.open(`https://xn--jbkk0que.gamerch.com/${name}`, '_blank');
+			}
+		}
+
+		function mouseOver(e) {
+			let unit_id = $(e.target).data('id');
+			if (!unit_id) {
+				unit_id = $(e.target).parent().data('id');
+			}
+			if (unit_id > 0) {
+				const window_height = $(window).height();
+				const mouseY = e.pageY;
+				const mouseX = e.pageX;
+				const boxPosY = (mouseY > window_height - 240) ? mouseY - 40 - 150 : mouseY + 40 ;
+				const boxPosX = mouseX + 40;
+				$('#chara_name').text( CD[unit_id][YD.NAME] );
+				$('#chara_icon').attr('src', `${YD.SS_URL}${unit_id}${YD.SS_EXT}`);
+				$('#chara_info').show().css({ top: boxPosY, left: boxPosX });
+			}
+		};
+		function mouseOut() {
+			$('#chara_info').hide();
+		}
+
+		//$(()=>
+		{
+			$(document).on('selectstart', () => false);
+			$('#selectList').on('change', ChangeSummary);
+
+			const $help = $('#help').removeAttr('id').remove().show();
+			function showHelp() {
+				const $box = addBox('ヘルプ', $help.clone())
+					.css('left', '500px').css('top', '4px').css('width', '400px');
+
+				$help.find('#help_top').remove();
+				return $box;
+			}
+			showHelp().find('input[type=checkbox]').prop('checked', true);
+		}
+		//);
+
+		// 雛形
+		const $tmpl = $('table#tmpl').removeAttr('id');
+		let tmpl_height = 0;
+
+		function page_start() {
+			loadData();
+			calcSameUnit()
+			RegistSummary();
+
+			tmpl_height = $tmpl.height();
+			$tmpl.remove().show();
+
+			// プラグインとして読み込み
+			RegistSummary('ヘルプ', 'ヘルプ - 使い方', showHelp);
+			plugins.forEach((url) => {
+				$('<script>').attr({ 'src': url }).appendTo($('body'));
+			});
+		}
+	</script>
+	<script>YURUDATA.get('https://yurutility.cf/data/201908-1a', page_start);</script>
+</body>
+
+</html>
