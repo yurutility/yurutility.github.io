@@ -129,12 +129,34 @@
 			width: 64px;
 		}
 	</style>
+	<style>
+		/**** 結晶 ****/
+		table#c_table {
+			table-layout: fixed;
+			width: 256px;
+		}
+		table#c_table thead,
+		table#c_table tbody tr td:nth-child(1) {
+			/* 行見出し、列見出し */
+			text-align: center;
+			font-size: x-small;
+			line-height: 20px;
+		}
+		table#c_table tbody td {
+			/* 値セル */
+			text-align: right;
+		}
+		table#c_table td {
+			/* 値セルの幅 */
+			width: 64px;
+		}
+	</style>
 </head>
 <script>
 	const ATTR_J = "　炎氷風雷光闇".split('');
 
 	const $inputs = [{}, {}, {}, {}, {}, {}, {}]; // 値の操作はここから可能
-	const input_list = ['s3', 's4', 's5', 'e2', 'e3', 'e4', 'e5', '1_60', '60_1', '1_60_80_1', '60_1_80_1', '1_80_1', '80_1', '1_100', '100_120', 'no3', 'no4', 'ss3', 'ss4', 'es2', 'es3', 'es4', 'es5'];
+	const input_list = ['s3', 's4', 's5', 'e2', 'e3', 'e4', 'e5', '1_60', '60_1', '1_60_80_1', '60_1_80_1', '1_80_1', '80_1', '1_100', '100_120', 'no3', 'no4', 'c3', 'c4', 'c5', 'ss3', 'ss4', 'es2', 'es3', 'es4', 'es5'];
 	const input_map = {}; input_list.forEach((v, i) => { input_map[v] = i });
 	let lastValue = 0;
 
@@ -204,7 +226,7 @@
 		}
 		savedata = JSON.parse(localStorage.getItem('materials'));
 		for (let type = 1; type <= 6; type++) {
-			for (let idx = 0; idx <= 16; idx++) {
+			for (let idx = 0; idx <= 19; idx++) {
 				const value = parseInt(savedata[type][idx]);
 				$inputs[type][input_list[idx]].val(isNaN(value) ? 0 : value);
 			}
@@ -216,7 +238,7 @@
 		ATTR_J.forEach((v, i) => {
 			if (i == 0) // 1:炎 6:闇
 				return;
-			const [s3, s4, s5, e2, e3, e4, e5, v1_60, v60_1, v1_60_80_1, v60_1_80_1, v1_80_1, v80_1, v1_100, v100_120, no3, no4] = savedata[i];
+			const [s3, s4, s5, e2, e3, e4, e5, v1_60, v60_1, v1_60_80_1, v60_1_80_1, v1_80_1, v80_1, v1_100, v100_120, no3, no4, c3, c4, c5] = savedata[i];
 
 			//const 
 			//=(((B3*$B$9+D3*$D$9)*2.8)+((D3*$D$9+E3*$E$9+F3*$F$9)*4.5)+K3*$K$9*6.7)
@@ -251,6 +273,7 @@
 		const $s_tbody = $('table#s_table>tbody');
 		const $e_tbody = $('table#e_table>tbody');
 		const $es_tbody = $('table#es_table>tbody');
+		const $c_tbody = $('table#c_table>tbody');
 		ATTR_J.forEach((v, i) => {
 			if (i == 0) // 1:炎 6:闇
 				return;
@@ -325,6 +348,19 @@
 			).append(
 				$('<td>').append($inputs[i]['es5'].attr({ readonly: 'readonly' }))
 			);
+
+			// 進化素材 不足数
+			const $c_tr = $('<tr>').appendTo($c_tbody);
+			$c_tr.append(
+				$('<th>').text(v)
+			).append(
+				$('<td>').append($inputs[i]['c3'])
+			).append(
+				$('<td>').append($inputs[i]['c4'])
+			).append(
+				$('<td>').append($inputs[i]['c5'])
+			);
+
 		});
 		$('#page_url').on('change', () => {
 			saveData();
@@ -360,7 +396,7 @@
 		</tbody>
 	</table>
 
-	<table id="s_table" border="1">
+	<table id="s_table" border="1" style="float: left;">
 		<thead>
 			<tr>
 				<th colspan="6">強化素材</th>
@@ -377,6 +413,22 @@
 		<tbody>
 		</tbody>
 	</table>
+	<table id="c_table" border="1" style="float: left;">
+		<thead>
+			<tr>
+				<th colspan="4">結晶</th>
+			</tr>
+			<tr>
+				<td><span title="マウスホバーで説明が表示されます">説明⇒</span></td>
+				<td><span title="所持している小結晶の数">小結晶</span></td>
+				<td><span title="所持している中結晶の数">中結晶</span></td>
+				<td><span title="所持している大結晶の数">大結晶</span></td>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+	<div style="clear: both;"></div>
 
 	<table id="e_table" border="1" style="float: left;">
 		<thead>
