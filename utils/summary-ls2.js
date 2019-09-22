@@ -43,7 +43,7 @@
 					.append($('<td>').text(same_data[3] || '　').css('text-align', 'right'))
 					.append($('<td>').text(same_data[4] || '　').css('text-align', 'right'))
 					.append($('<td>').text(same_data[5] || '　').css('text-align', 'right'));
-				if (same_data[1] > 0) {
+				if (same_data[1] > 1) {
 					$tr.prependTo($tbody_list[chara_data[4]][LS_TOP_MAP[chara_data[12]]]);
 				} else {
 					$tr.appendTo($tbody_list[chara_data[4]][LS_TOP_MAP[chara_data[12]]]);
