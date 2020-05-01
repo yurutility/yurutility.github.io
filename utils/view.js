@@ -117,6 +117,13 @@
 			//},
 		};
 
+		const ClmnIdx = { "HP": 0, "攻撃力": 0, "防御力": 0, "回復力": 0, "素早さ": 0, };
+		for (let idx = 0; idx < config.columns.length; idx++) {
+			if ( ClmnIdx[ config.columns[idx].title ] === 0) {
+				ClmnIdx[ config.columns[idx].title ] = idx;
+			}
+		}
+
 		function cellDblClick(e, cell) { // e - the click event object / cell - cell component
 			const name = cell.getData().name;
 			//if (confirm(`攻略Wikiで ${name} のページを開きますか？\n※ブラウザがポップアップブロックするかも`)) {
@@ -451,12 +458,61 @@
 
 			filterFunc.isMS = id => CD[id][YD.LS][YD.LS_TYPE] == 2;
 			filterFunc.overLimit = id => CD[id][YD.HP120] > 0;
+			filterFunc.arousal = id => CD[id][YD.AROUSAL] != 0;
 
+
+
+			filterFunc.HP_worst  = id => filterStatus.call(null, "HP", YD.HP, YD.HP120, id, true);
+			filterFunc.ATK_worst = id => filterStatus.call(null, "攻撃力", YD.ATK, YD.ATK120, id, true);
+			filterFunc.DEF_worst = id => filterStatus.call(null, "防御力", YD.DEF, YD.DEF120, id, true);
+			filterFunc.ACC_worst = id => filterStatus.call(null, "回復力", YD.ACC, YD.ACC120, id, true);
+			filterFunc.SPD_worst = id => filterStatus.call(null, "素早さ", YD.SPD, YD.SPD120, id, true);
+			filterFunc.HP_worse  = id => filterStatus.call(null, "HP", YD.HP, YD.HP120, id, false);
+			filterFunc.ATK_worse = id => filterStatus.call(null, "攻撃力", YD.ATK, YD.ATK120, id, false);
+			filterFunc.DEF_worse = id => filterStatus.call(null, "防御力", YD.DEF, YD.DEF120, id, false);
+			filterFunc.ACC_worse = id => filterStatus.call(null, "回復力", YD.ACC, YD.ACC120, id, false);
+			filterFunc.SPD_worse = id => filterStatus.call(null, "素早さ", YD.SPD, YD.SPD120, id, false);
+			filterFunc.SPD_worse = id => filterStatus.call(null, "素早さ", YD.SPD, YD.SPD120, id, false);
+
+			function filterStatus(st, st100, st120, id, worst) {
+				const param = config.columns[ClmnIdx[st]].formatterParams;
+				const tan = (param.max - param.min) / param.color.length;
+				const val = Math.max(CD[id][st100], CD[id][st120]);
+				let idx = Math.floor((val - param.min) / tan);
+				if (idx > param.color.length) { 
+					idx = param.color.length - 1;
+				}
+				if (val < param.min) {
+					idx = 0;
+				}
+				return (param.color[idx] == "red" || (worst == false && param.color[idx] == "#ff6666"));
+			}
+
+			filterFunc["cat" + 0] = id => CD[id][YD.CATEGORY] == "";
 			Object.keys(YD._CATEGORIES).forEach((v, i) => {
 				filterFunc["cat" + v] = id => CD[id][YD.CATEGORY] == YD._CATEGORIES[v];
 			});
 
-			for (let $obj of [ $filters1, $filters2, $filters3, $filters9 ]) {
+			$filters9.multiselect('addOption', { value: 'HP_worst' }, 'HPがとても低い (赤色)');
+			$filters9.multiselect('addOption', { value: 'HP_worse' }, 'HPが低い (赤色 朱色)');
+			$filters9.multiselect('addOption', { value: 'ATK_worst' }, '攻撃力がとても低い (赤色)');
+			$filters9.multiselect('addOption', { value: 'ATK_worse' }, '攻撃力が低い (赤色 朱色)');
+			$filters9.multiselect('addOption', { value: 'DEF_worst' }, '防御力がとても低い (赤色)');
+			$filters9.multiselect('addOption', { value: 'DEF_worse' }, '防御力が低い (赤色 朱色)');
+			$filters9.multiselect('addOption', { value: 'SPD_worst' }, '素早さがとても低い (赤色)');
+			$filters9.multiselect('addOption', { value: 'SPD_worse' }, '素早さが低い (赤色 朱色)');
+			$filters9.multiselect('addOption', { value: 'ACC_worst' }, '回復力がとても低い (赤色)');
+			$filters9.multiselect('addOption', { value: 'ACC_worse' }, '回復力が低い (赤色 朱色)');
+			$filters9.multiselect('addOption', { value: 'zen4'      }, '4全 (第4スキルが全体攻撃)');
+			$filters9.multiselect('addOption', { value: 'ran4'      }, '4乱 (第4スキルがランダム攻撃)');
+			$filters9.multiselect('addOption', { value: 'cat0'      }, 'カテゴリ：汎用キャラ');
+			$filters9.multiselect('addOption', { value: 'cat1'      }, 'カテゴリ：メインストーリー');
+			$filters9.multiselect('addOption', { value: 'cat999'    }, 'カテゴリ：コラボ');
+			$filters9.multiselect('refresh');
+			$filters9.on('multiselectbeforeuncheckall', delayF.bind(null,  100));
+			$filters9.on("multiselectclick",            delayF.bind(null, 1000));
+
+			for (let $obj of [ $filters1, $filters2, $filters3, ]) {
 				$obj.multiselect('addOption', { value: 'OneHeal' }, '単ヒール');
 				$obj.multiselect('addOption', { value: 'AllHeal' }, 'ヒールオール');
 				$obj.multiselect('addOption', { value: 'Rejene' }, 'オートヒール');
@@ -481,6 +537,9 @@
 
 				$obj.multiselect('addOption', { value: 'isMS' }, 'メンバースキル');
 				$obj.multiselect('addOption', { value: 'overLimit' }, '限界突破キャラ');
+				$obj.multiselect('addOption', { value: 'arousal' }, '究極覚醒キャラ');
+
+				$obj.multiselect('addOption', { value: 'cat0' }, 'カテゴリ：汎用キャラ');
 				Object.keys(YD._CATEGORIES).forEach((v, i) => {
 					$obj.multiselect('addOption', { value: `cat${v}` }, `カテゴリ：${YD._CATEGORIES[v]}`);
 				});
