@@ -23,7 +23,7 @@
 		// 所持キャラを振り分け
 		Object.keys(chkSame1).forEach((unit_id, i) => {
 			const chara_data = CD[unit_id];
-			if (LS_TOP_MAP[chara_data[12]] >= 0) {
+			if (LS_TOP_MAP[chara_data[YD.LS][YD.LS_KOUKA]] >= 0) {
 				const same_data = chkSame1[unit_id];
 				// 名前枠を 限凸 状態や 最大Lv や リーダースキル や 装備枠解放 の状態で変化
 				const $td_name = $('<td>').text(chara_data[YD.NAME] + (chara_data[YD.HP120]  > 0 ? '★' : ''))
@@ -44,9 +44,9 @@
 					.append($('<td>').text(same_data[4] || '　').css('text-align', 'right'))
 					.append($('<td>').text(same_data[5] || '　').css('text-align', 'right'));
 				if (same_data[1] > 1) {
-					$tr.prependTo($tbody_list[chara_data[4]][LS_TOP_MAP[chara_data[12]]]);
+					$tr.prependTo($tbody_list[chara_data[YD.ATTR]][LS_TOP_MAP[chara_data[YD.LS][YD.LS_KOUKA]]]);
 				} else {
-					$tr.appendTo($tbody_list[chara_data[4]][LS_TOP_MAP[chara_data[12]]]);
+					$tr.appendTo($tbody_list[chara_data[YD.ATTR]][LS_TOP_MAP[chara_data[YD.LS][YD.LS_KOUKA]]]);
 				}
 
 			}

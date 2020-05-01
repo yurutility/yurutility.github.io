@@ -114,10 +114,10 @@ function addUnit( unit_id ) {
 		$table.find(".unit_spd120").text( '(' + data[ YD.SPD120 ] + ')').css( 'color', data[ YD.SPD ] == data[ YD.SPD120 ] ? 'inherit' : 'red' );
 		$table.find(".unit_acc120").text( '(' + data[ YD.ACC120 ] + ')').css( 'color', data[ YD.ACC ] == data[ YD.ACC120 ] ? 'inherit' : 'red' );
 	}
-	$table.find(".unit_skill2").text( data[ YD.SKILL2 ] ? data[ YD.SKILL2 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL2 ] ? data[ YD.SKILL2 ][ 2 ] : "" );
-	$table.find(".unit_skill3").text( data[ YD.SKILL3 ] ? data[ YD.SKILL3 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL3 ] ? data[ YD.SKILL3 ][ 2 ] : ""  );
-	$table.find(".unit_skill4").text( data[ YD.SKILL4 ] ? data[ YD.SKILL4 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL4 ] ? data[ YD.SKILL4 ][ 2 ] : ""  );
-	$table.find(".unit_ls").text( data[ YD.LS ] );
+	$table.find(".unit_skill2").text( data[ YD.SKILL2 ] ? data[ YD.SKILL2 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL2 ] ? `[${data[YD.SKILL2][YD.S_NAME]}]\n${data[YD.SKILL2][YD.S_DESC]}` : "" );
+	$table.find(".unit_skill3").text( data[ YD.SKILL3 ] ? data[ YD.SKILL3 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL3 ] ? `[${data[YD.SKILL3][YD.S_NAME]}]\n${data[YD.SKILL3][YD.S_DESC]}` : "" );
+	$table.find(".unit_skill4").text( data[ YD.SKILL4 ] ? data[ YD.SKILL4 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL4 ] ? `[${data[YD.SKILL4][YD.S_NAME]}]\n${data[YD.SKILL4][YD.S_DESC]}` : "" );
+	$table.find(".unit_ls").text( data[YD.LS][YD.LS_KOUKA] ).attr('title', data[YD.LS][YD.ID] ? `[${data[YD.LS][YD.NAME]}]\n${data[YD.LS][YD.LS_DESC]}` : "" );;
 
 	$table.find(".unit_icon").attr("src", `${YD.SS_URL}${unit_id}${YD.SS_EXT}`).on('dblclick', openWikiPage.bind(null, data[YD.NAME]));
 
@@ -183,7 +183,7 @@ function page_start() {
 		});
 	}
 
-	if (CD[60605][25] != 60060365) {
+	if (CD[60605][YD.ORDER] != 60060365) {
 		console.warn('【データ作成ミス】真闇の大魔導士ルーのソートIDが違う！');
 	}
 }

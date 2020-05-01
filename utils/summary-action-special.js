@@ -49,15 +49,15 @@
 			const same_data = chkSame1[unit_id];
 			CheckColumn.forEach(column => {
 				//if (chara_data[column] && LS_TOP_MAP[chara_data[column][0]] >= 0) {
-				//	$make_tr(chara_data, same_data).appendTo($tbody_list[chara_data[4]][LS_TOP_MAP[chara_data[column][0]]]);
+				//	$make_tr(chara_data, same_data).appendTo($tbody_list[chara_data[YD.ATTR]][LS_TOP_MAP[chara_data[column][0]]]);
 				//}
 				if (chara_data[column]) {
 					//if (LS_TOP_MAP[chara_data[column][0]] >= 0) {
-					//	$make_tr(chara_data, same_data).appendTo($tbody_list[chara_data[4]][LS_TOP_MAP[chara_data[column][0]]]);
+					//	$make_tr(chara_data, same_data).appendTo($tbody_list[chara_data[YD.ATTR]][LS_TOP_MAP[chara_data[column][0]]]);
 					//}
 					LS_TOP.forEach((v,i) => {
 						if (chara_data[column][1].indexOf(v) >= 0) {
-							const $tr = $make_tr(chara_data, same_data).appendTo($tbody_list[chara_data[4]][i]);
+							const $tr = $make_tr(chara_data, same_data).appendTo($tbody_list[chara_data[YD.ATTR]][i]);
 							const $span = $tr.find('span.chara_name').attr('title', `[${column-7}:${chara_data[column][1]}]\n${chara_data[column][2]}`);
 							$span.text(`${column-7}:${$span.text()}`);
 						}
@@ -97,11 +97,11 @@
 			CheckColumn.forEach(column => {
 				if (chara_data[column]) {
 					//if (LS_TOP_MAP[chara_data[column][0]] >= 0) {
-					//	$make_tr(chara_data, same_data).appendTo($tbody_list[chara_data[4]][LS_TOP_MAP[chara_data[column][0]]]);
+					//	$make_tr(chara_data, same_data).appendTo($tbody_list[chara_data[YD.ATTR]][LS_TOP_MAP[chara_data[column][0]]]);
 					//}
 					LS_TOP.forEach((v,i) => {
 						if (chara_data[column][1].indexOf(v) >= 0) {
-							const $tr = $make_tr(chara_data, same_data).appendTo($tbody_list[chara_data[4]][i]);
+							const $tr = $make_tr(chara_data, same_data).appendTo($tbody_list[chara_data[YD.ATTR]][i]);
 							const $span = $tr.find('span.chara_name').attr('title', `[${column-7}:${chara_data[column][1]}]\n${chara_data[column][2]}`);
 							$span.text(`${column-7}:${$span.text()}`);
 						}
@@ -141,7 +141,7 @@
 				if (chara_data[column]) {
 					LS_TOP.forEach((v,i) => {
 						if (chara_data[column][1].indexOf(v) >= 0) {
-							const $tr = $make_tr(chara_data, same_data).appendTo($tbody_list[chara_data[4]][i]);
+							const $tr = $make_tr(chara_data, same_data).appendTo($tbody_list[chara_data[YD.ATTR]][i]);
 							const $span = $tr.find('span.chara_name').attr('title', `[${column-7}:${chara_data[column][1]}]\n${chara_data[column][2]}`);
 							$span.text(`${column-7}:${$span.text()}`);
 						}

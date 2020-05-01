@@ -110,7 +110,7 @@
 				{ title: "2技", field: `data.${YD.SKILL2}.${YD.NAME}`, width: 100, align: "left", tooltip: toolTip.bind(null, YD.SKILL2), formatter: skillFormatter.bind(null, YD.SKILL2), },
 				{ title: "3技", field: `data.${YD.SKILL3}.${YD.NAME}`, width: 100, align: "left", tooltip: toolTip.bind(null, YD.SKILL3), formatter: skillFormatter.bind(null, YD.SKILL3), },
 				{ title: "4技", field: `data.${YD.SKILL4}.${YD.NAME}`, width: 100, align: "left", tooltip: toolTip.bind(null, YD.SKILL4), formatter: skillFormatter.bind(null, YD.SKILL4), },
-				{ title: "リーダースキル", field: `data.${YD.LS}`, width: 200, align: "left", },
+				{ title: "リーダースキル", field: `data.${YD.LS}.${YD.LS_KOUKA}`, width: 200, align: "left", tooltip: toolTipLS.bind(null, YD.LS), formatter: skillFormatterLS.bind(null, YD.LS), },
 			],
 			//rowClick: function (e, row) { //trigger an alert message when the row is clicked
 			//	alert("Row " + row.getData().id + " Clicked!!!!");
@@ -119,9 +119,11 @@
 
 		function cellDblClick(e, cell) { // e - the click event object / cell - cell component
 			const name = cell.getData().name;
-			if (confirm(`攻略Wikiで ${name} のページを開きますか？\n※ブラウザがポップアップブロックするかも`)) {
-				window.open(`https://xn--jbkk0que.gamerch.com/${name}`, '_blank');
-			}
+			//if (confirm(`攻略Wikiで ${name} のページを開きますか？\n※ブラウザがポップアップブロックするかも`)) {
+			//	window.open(`https://xn--jbkk0que.gamerch.com/${name}`, '_blank');
+			//}
+			const id = cell.getData().id;
+			addUnit(id);
 		}
 		function nameFormatter(id, cell, formatterParams) {
 			const data = id.getData();
@@ -142,6 +144,14 @@
 		function toolTip(id, t) {
 			const d = t.getData().data[id];
 			return `[${d[2]}]\n[${d[1]}]\n${d[3]}`;
+		}
+		function skillFormatterLS(id, cell, formatterParams) {
+			const d = cell.getData().data[id];
+			return `${chkSkillName?d[YD.NAME]:d[YD.LS_KOUKA]}`;
+		}
+		function toolTipLS(id, t) {
+			const d = t.getData().data[id];
+			return `[${d[YD.NAME]}]\n[${d[YD.LS_KOUKA]}]\n${d[YD.LS_DESC]}`;
 		}
 
 		{
@@ -169,6 +179,8 @@
 		}
 
 		const filter = {};
+		const filterFunc = { };
+
 		function filterUpdate() {
 			let attr_all = 0;
 			let rare_all = 0;
@@ -190,6 +202,11 @@
 			}
 			filter['level'] = $('input[name=status]:checked').val();
 			filter['leader'] = $('#filter_ls').val();
+
+			filter['filters1'] = $('#filters1').val() || [ ];
+			filter['filters2'] = $('#filters2').val() || [ ];
+			filter['filters3'] = $('#filters3').val() || [ ];
+			filter['filters9'] = $('#filters9').val() || [ ];
 		}
 		function membersUpdate() {
 			filterUpdate();
@@ -200,6 +217,7 @@
 			const chkGettable = $('#chkGettable').prop('checked') ? true : false;
 			const gacha_unit = Object.assign({}, YD.gacha_unit);
 
+			// 所持キャラをリストアップ
 			const members = [];
 			for (let unit_id in savedata) {
 				let data = CD[unit_id];
@@ -239,6 +257,7 @@
 				}
 			}
 
+			// 開催中ガチャで入手可能なユニットをリストに追加
 			if (chkGettable) {
 				for (let unit_id in gacha_unit)
 				{
@@ -263,7 +282,7 @@
 				}
 			}
 
-			// フィルタ
+			// 所持キャラをフィルタ
 			const filtered = [];
 			for (let i = 0; i < members.length; i++) {
 				const data = members[i].data;
@@ -282,15 +301,255 @@
 				}
 				// リーダースキル
 				if (filter['leader']) {
-					if (filter['leader'] != data[YD.LS]) {
+					if (data[YD.LS][YD.LS_KOUKA].indexOf(filter['leader']) < 0) {
 						continue;
 					}
 				}
+
+				// 基本フィルタ (フィルタのいずれにもマッチしなければDROP)
+				let hits = 0;
+				if (filter['filters1'].length > 0) {
+					for (let v of filter['filters1']) {
+						const f = filterFunc[v];
+						if (f) {
+							if (f(data[YD.ID])) {
+								hits++;
+							}
+						}
+					}
+					if (hits == 0) {
+						continue;
+					}
+				}
+				// 追加フィルタ (追加条件のいずれにもマッチしなければDROP)
+				hits = 0;
+				if (filter['filters2'].length > 0) {
+					for (let v of filter['filters2']) {
+						const f = filterFunc[v];
+						if (f) {
+							if (f(data[YD.ID])) {
+								hits++;
+							}
+						}
+					}
+					if (hits == 0) {
+						continue;
+					}
+				}
+				// 追加フィルタ (追加条件のいずれにもマッチしなければDROP)
+				hits = 0;
+				if (filter['filters3'].length > 0) {
+					for (let v of filter['filters3']) {
+						const f = filterFunc[v];
+						if (f) {
+							if (f(data[YD.ID])) {
+								hits++;
+							}
+						}
+					}
+					if (hits == 0) {
+						continue;
+					}
+				}
+				// 除外フィルタ (除外条件のいずれかにマッチしたらDROP)
+				hits = 0;
+				if (filter['filters9'].length > 0) {
+					for (let v of filter['filters9']) {
+						const f = filterFunc[v];
+						if (f) {
+							if (f(data[YD.ID])) {
+								hits++;
+							}
+						}
+					}
+					if (hits > 0) {
+						continue;
+					}
+				}
+
 				filtered.push(members[i]);
 			}
 
 			table.setData(filtered);
 			return members;
+		}
+
+		$(function(){
+			const $filters1 = $("#filters1").multiselect( { zIndex: 99999, header: ['uncheckAll'], menuHeight: 600, menuWidth: 500, buttonWidth: 320, wrapText: [ ], selectedList: 1, noneSelectedText: "　フィルタを指定",             selectedText: "複数のフィルタを選択中(#)" } );
+			const $filters2 = $("#filters2").multiselect( { zIndex: 99999, header: ['uncheckAll'], menuHeight: 600, menuWidth: 500, buttonWidth: 320, wrapText: [ ], selectedList: 1, noneSelectedText: "　追加の条件を指定できます",   selectedText: "複数の追加条件を選択中(#)" } );
+			const $filters3 = $("#filters3").multiselect( { zIndex: 99999, header: ['uncheckAll'], menuHeight: 600, menuWidth: 500, buttonWidth: 320, wrapText: [ ], selectedList: 1, noneSelectedText: "　追加の条件を指定できます",   selectedText: "複数の追加条件を選択中(#)" } );
+			const $filters9 = $("#filters9").multiselect( { zIndex: 99999, header: ['uncheckAll'], menuHeight: 600, menuWidth: 500, buttonWidth: 320, wrapText: [ ], selectedList: 1, noneSelectedText: "　除外する条件を指定できます", selectedText: "複数の除外条件を選択中(#)" } );
+
+			// <option>リーダースキルが 攻+40%</option>
+			// <option>リーダースキルが 防+40%</option>
+			// <option>リーダースキルが 回+40%</option>
+			// <option>リーダースキルが 早+40%</option>
+			// <option>リーダースキルが HP+30%</option>
+			// <option>リーダースキルが 上記５つ以外</option>
+			// <option>リーダースキルが 全属性対象</option>
+			// <option>究極覚醒 対象キャラ</option>
+			// <option>単ヒール持ち</option>
+			// <option>全ヒール持ち</option>
+			// <option>オートヒール持ち</option>
+			// <option>リカバリー持ち</option>
+			// <option>ディスペル持ち</option>
+			// <option>クイック持ち</option>
+			// <option>スロウ持ち</option>
+			// <option>ウェポンブレイク持ち</option>
+			// <option>シールドブレイク持ち</option>
+			// <option>ウェポンブースト持ち</option>
+			// <option>シールドブースト持ち</option>
+
+			filterFunc.tan3 = id => !!(CD[id][YD.SKILL3] ? CD[id][YD.SKILL3][YD.S_KOUKA]||"" : "").match(/単\d+hit x\d/);
+			filterFunc.ran3 = id => !!(CD[id][YD.SKILL3] ? CD[id][YD.SKILL3][YD.S_KOUKA]||"" : "").match(/乱\d+hit x\d/);
+			filterFunc.zen3 = id => !!(CD[id][YD.SKILL3] ? CD[id][YD.SKILL3][YD.S_KOUKA]||"" : "").match(/全\d+hit x\d/);
+			filterFunc.tan4 = id => !!(CD[id][YD.SKILL4] ? CD[id][YD.SKILL4][YD.S_KOUKA]||"" : "").match(/単\d+hit x\d/);
+			filterFunc.ran4 = id => !!(CD[id][YD.SKILL4] ? CD[id][YD.SKILL4][YD.S_KOUKA]||"" : "").match(/乱\d+hit x\d/);
+			filterFunc.zen4 = id => !!(CD[id][YD.SKILL4] ? CD[id][YD.SKILL4][YD.S_KOUKA]||"" : "").match(/全\d+hit x\d/);
+
+			filterFunc.Healer = id => {
+				let hits = 0;
+				[8,9,10,11].forEach(column => {
+					if (CD[id][column]) {
+						['単ヒール','全ヒール','リジェネ'].forEach((v,i) => {
+							if ((CD[id][column][YD.NAME]||"").indexOf(v) >= 0) {
+								hits++;
+							}
+						})
+					}
+				});
+				return hits > 0;
+			}
+
+			function hasSkill( words ) {
+				return function (id) {
+					let hits = 0;
+					[8,9,10,11].forEach(column => {
+						if (CD[id][column]) {
+							words.forEach((v,i) => {
+								if ((CD[id][column][YD.NAME]||"").indexOf(v) >= 0) {
+									hits++;
+								}
+							})
+						}
+					});
+					return hits > 0;
+				}
+			}
+			filterFunc.OneHeal     = hasSkill(['単ヒール']);
+			filterFunc.AllHeal     = hasSkill(['全ヒール']);
+			filterFunc.Rejene      = hasSkill(['リジェネ']);
+			filterFunc.hasDespell  = hasSkill(['ディスペル']);
+			filterFunc.hasRecovery = hasSkill(['リカバリ']);
+
+			filterFunc.hasQuick = hasSkill(['早+']);
+			filterFunc.hasShieldBoost = hasSkill(['防+']);
+			filterFunc.hasWeponBoost = hasSkill(['攻+']);
+			filterFunc.hasSlow = hasSkill(['早-']);
+			filterFunc.hasShieldBreak = hasSkill(['防-']);
+			filterFunc.hasWeponBreak = hasSkill(['攻-']);
+
+			filterFunc.isMS = id => CD[id][YD.LS][YD.LS_TYPE] == 2;
+			filterFunc.overLimit = id => CD[id][YD.HP120] > 0;
+
+			Object.keys(YD._CATEGORIES).forEach((v, i) => {
+				filterFunc["cat" + v] = id => CD[id][YD.CATEGORY] == YD._CATEGORIES[v];
+			});
+
+			for (let $obj of [ $filters1, $filters2, $filters3, $filters9 ]) {
+				$obj.multiselect('addOption', { value: 'OneHeal' }, '単ヒール');
+				$obj.multiselect('addOption', { value: 'AllHeal' }, 'ヒールオール');
+				$obj.multiselect('addOption', { value: 'Rejene' }, 'オートヒール');
+				$obj.multiselect('addOption', { value: 'hasDespell' }, 'ディスペル持ち');
+				$obj.multiselect('addOption', { value: 'hasRecovery' }, 'リカバリー持ち');
+
+				$obj.multiselect('addOption', { value: 'hasQuick' }, 'クイック持ち');
+				$obj.multiselect('addOption', { value: 'hasWeponBoost' }, 'ウェポンブースト持ち');
+				$obj.multiselect('addOption', { value: 'hasShieldBoost' }, 'シールドブースト持ち');
+
+				$obj.multiselect('addOption', { value: 'hasSlow' }, 'スロウ持ち');
+				$obj.multiselect('addOption', { value: 'hasWeponBreak' }, 'ウェポンブレイク持ち');
+				$obj.multiselect('addOption', { value: 'hasShieldBreak' }, 'シールドブレイク持ち');
+
+
+				$obj.multiselect('addOption', { value: 'tan4' }, '4単 (第4スキルが単体攻撃)');
+				$obj.multiselect('addOption', { value: 'ran4' }, '4乱 (第4スキルがランダム攻撃)');
+				$obj.multiselect('addOption', { value: 'zen4' }, '4全 (第4スキルが全体攻撃)');
+				$obj.multiselect('addOption', { value: 'tan3' }, '3単 (第3スキルが単体攻撃)');
+				$obj.multiselect('addOption', { value: 'ran3' }, '3乱 (第3スキルがランダム攻撃)');
+				$obj.multiselect('addOption', { value: 'zen3' }, '3全 (第3スキルが全体攻撃)');
+
+				$obj.multiselect('addOption', { value: 'isMS' }, 'メンバースキル');
+				$obj.multiselect('addOption', { value: 'overLimit' }, '限界突破キャラ');
+				Object.keys(YD._CATEGORIES).forEach((v, i) => {
+					$obj.multiselect('addOption', { value: `cat${v}` }, `カテゴリ：${YD._CATEGORIES[v]}`);
+				});
+				$obj.multiselect('refresh');
+
+				$obj.on('multiselectbeforeuncheckall', delayF.bind(null,  100));
+				$obj.on("multiselectclick",            delayF.bind(null, 1000));
+			}
+
+			let filterDelay;
+			const f = function(event, ui) {
+				filterDelay = undefined;
+				membersUpdate();
+			};
+			function delayF(delay, event, ui){
+				// event The original event object, most likely click.
+				// ui.value The value of the checkbox.
+				// ui.text The text of the checkbox.
+				// ui.checked Whether or not the input was checked or unchecked.
+				if (filterDelay) {
+					clearTimeout(filterDelay);
+				}
+				filterDelay = setTimeout(f.bind(this, event, ui), delay);
+			};
+		});
+
+		// 雛形
+		const $tmpl = $('table#tmpl').removeAttr('id');
+		let tmpl_height = 0;
+
+		function addUnit( unit_id ) {
+			const data = CD[unit_id];
+			const rare = data[YD.RARE];
+			const attr = data[YD.ATTR];
+
+			const $table = $tmpl.clone().data('id', unit_id);
+
+			$table.find(".unit_name").text( data[ YD.NAME ] );
+			$table.find(".unit_hp") .text( data[ YD.HP ]  );
+			$table.find(".unit_atk").text( data[ YD.ATK ] );
+			$table.find(".unit_def").text( data[ YD.DEF ] );
+			$table.find(".unit_spd").text( data[ YD.SPD ] );
+			$table.find(".unit_acc").text( data[ YD.ACC ] );
+			if (data[ YD.HP120 ] != 0) {
+				$table.find(".unit_hp120") .text( '(' + data[ YD.HP120 ]  + ')').css( 'color', data[ YD.HP  ] == data[ YD.HP120  ] ? 'inherit' : 'red' );
+				$table.find(".unit_atk120").text( '(' + data[ YD.ATK120 ] + ')').css( 'color', data[ YD.ATK ] == data[ YD.ATK120 ] ? 'inherit' : 'red' );
+				$table.find(".unit_def120").text( '(' + data[ YD.DEF120 ] + ')').css( 'color', data[ YD.DEF ] == data[ YD.DEF120 ] ? 'inherit' : 'red' );
+				$table.find(".unit_spd120").text( '(' + data[ YD.SPD120 ] + ')').css( 'color', data[ YD.SPD ] == data[ YD.SPD120 ] ? 'inherit' : 'red' );
+				$table.find(".unit_acc120").text( '(' + data[ YD.ACC120 ] + ')').css( 'color', data[ YD.ACC ] == data[ YD.ACC120 ] ? 'inherit' : 'red' );
+			}
+
+			$table.find(".unit_skill2").text( data[ YD.SKILL2 ] ? data[ YD.SKILL2 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL2 ] ? `[${data[YD.SKILL2][YD.S_NAME]}]\n${data[YD.SKILL2][YD.S_DESC]}` : "" );
+			$table.find(".unit_skill3").text( data[ YD.SKILL3 ] ? data[ YD.SKILL3 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL3 ] ? `[${data[YD.SKILL3][YD.S_NAME]}]\n${data[YD.SKILL3][YD.S_DESC]}` : "" );
+			$table.find(".unit_skill4").text( data[ YD.SKILL4 ] ? data[ YD.SKILL4 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL4 ] ? `[${data[YD.SKILL4][YD.S_NAME]}]\n${data[YD.SKILL4][YD.S_DESC]}` : "" );
+			$table.find(".unit_ls").text( data[YD.LS][YD.LS_KOUKA] ).attr('title', data[YD.LS][YD.ID] ? `[${data[YD.LS][YD.NAME]}]\n${data[YD.LS][YD.LS_DESC]}` : "" );;
+
+			$table.find(".unit_icon").attr("src", `${YD.SS_URL}${unit_id}${YD.SS_EXT}`).on('dblclick', openWikiPage.bind(null, data[YD.NAME]));
+
+			const $box = addBox(data[YD.NAME], $table).data('id', unit_id).css('height', tmpl_height + 40);
+			$box.find('input[type=checkbox]').prop('checked', true).on('change', function(){ $box.remove(); /* listAutoSave(); */ })
+			/* $box.on('drag', listAutoSave); */
+
+			return $box;
+		}
+
+		function openWikiPage(name) {
+			if (confirm(`攻略Wikiで ${name} のページを開きますか？\n※ブラウザがポップアップブロックするかも`)) {
+				window.open(`https://xn--jbkk0que.gamerch.com/${name}`, '_blank');
+			}
 		}
 
 		let table;
@@ -324,6 +583,9 @@
 
 		function page_start(){
 			loadData();
+
+			tmpl_height = $tmpl.height();
+			$tmpl.remove().show();
 
 			fetch(YURUDATA._url.replace(/[^\/]+$/, YURUDATA.gacha_date)).then((res) => res.json()).then((json) => {
 				YURUDATA.gacha = json;

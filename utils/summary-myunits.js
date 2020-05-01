@@ -36,11 +36,11 @@
 				.append($('<td>').text(same_data[3] || '').css('text-align', 'right'))
 				.append($('<td>').text(same_data[4] || '').css('text-align', 'right'))
 				.append($('<td>').text(same_data[5] || '').css('text-align', 'right'))
-				.appendTo($tbody_list[chara_data[4]]);
+				.appendTo($tbody_list[chara_data[YD.ATTR]]);
 
-			attr_total[ chara_data[4] ][ 3 ] += same_data[3];
-			attr_total[ chara_data[4] ][ 4 ] += same_data[4];
-			attr_total[ chara_data[4] ][ 5 ] += same_data[5];
+			attr_total[ chara_data[YD.ATTR] ][ 3 ] += same_data[3];
+			attr_total[ chara_data[YD.ATTR] ][ 4 ] += same_data[4];
+			attr_total[ chara_data[YD.ATTR] ][ 5 ] += same_data[5];
 		});
 		for (let i = 1; i < YD.ATTR_J.length; i++) {
 			$('<tr>')

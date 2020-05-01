@@ -455,7 +455,7 @@ function page_start() {
 	createSearchWords();
 	loadData();
 	membersUpdate();
-	if (CD[60605][25] != 60060365) {
+	if (CD[60605][YD.ORDER] != 60060365) {
 		console.warn('【データ作成ミス】真闇の大魔導士ルーのソートIDが違う！');
 	}
 }

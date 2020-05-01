@@ -86,7 +86,7 @@
 		}).val('summary');
 	</script>
 	<!-- script order: data/2019-1.js => yurutility-common.js => summary.js => YURUDATA.get() -->
-	<script src="https://yurutility.cf/data/2019-2.js"></script>
+	<script src="https://yurutility.cf/data/2020-1.js"></script>
 	<script src="./yurutility-common.js"></script>
 	<!--script src="./summary.js"></script-->
 	<script>
@@ -94,7 +94,7 @@
 		const chkSame1 = {};
 		function calcSameUnit() {
 			for (let id in savedata) {
-				const unit_last = CD[id][24][0]; //最終進化のキャラコード
+				const unit_last = CD[id][YD.LAST_ID][0]; //最終進化のキャラコード
 				if (!chkSame1[unit_last]) {
 					chkSame1[unit_last] = [0, 0, 0, 0, 0, 0, 0];
 				}
@@ -103,7 +103,7 @@
 					chkSame1[unit_last][0] = Math.max(chkSame1[unit_last][0], v[0]); // 所有ユニットの最大レベル
 					chkSame1[unit_last][1] = Math.max(chkSame1[unit_last][1], v[1]); // 所有ユニットの最大ＬＳランク
 				}));
-				chkSame1[unit_last][CD[id][2]] = savedata[id].length;
+				chkSame1[unit_last][CD[id][YD.RARE]] = savedata[id].length;
 			}
 		}
 
@@ -136,6 +136,7 @@
 			}
 		}
 
+		// .on('dblclick', addUnit.bind(null, chara_data[YD.ID]))
 		function addUnit( unit_id ) {
 			const data = CD[unit_id];
 			const rare = data[YD.RARE];
@@ -156,16 +157,16 @@
 				$table.find(".unit_spd120").text( '(' + data[ YD.SPD120 ] + ')').css( 'color', data[ YD.SPD ] == data[ YD.SPD120 ] ? 'inherit' : 'red' );
 				$table.find(".unit_acc120").text( '(' + data[ YD.ACC120 ] + ')').css( 'color', data[ YD.ACC ] == data[ YD.ACC120 ] ? 'inherit' : 'red' );
 			}
-			$table.find(".unit_skill2").text( data[ YD.SKILL2 ] ? data[ YD.SKILL2 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL2 ] ? data[ YD.SKILL2 ][ 2 ] : "" );
-			$table.find(".unit_skill3").text( data[ YD.SKILL3 ] ? data[ YD.SKILL3 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL3 ] ? data[ YD.SKILL3 ][ 2 ] : ""  );
-			$table.find(".unit_skill4").text( data[ YD.SKILL4 ] ? data[ YD.SKILL4 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL4 ] ? data[ YD.SKILL4 ][ 2 ] : ""  );
-			$table.find(".unit_ls").text( data[ YD.LS ] );
+			$table.find(".unit_skill2").text( data[ YD.SKILL2 ] ? data[ YD.SKILL2 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL2 ] ? data[ YD.SKILL2 ][ YD.S_NAME ] : "" );
+			$table.find(".unit_skill3").text( data[ YD.SKILL3 ] ? data[ YD.SKILL3 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL3 ] ? data[ YD.SKILL3 ][ YD.S_NAME ] : ""  );
+			$table.find(".unit_skill4").text( data[ YD.SKILL4 ] ? data[ YD.SKILL4 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL4 ] ? data[ YD.SKILL4 ][ YD.S_NAME ] : ""  );
+			$table.find(".unit_ls").text( data[YD.LS][YD.LS_KOUKA] ).attr('title', data[YD.LS][YD.ID] ? `[${data[YD.LS][YD.NAME]}]\n${data[YD.LS][YD.LS_DESC]}` : "" );;
 
 			$table.find(".unit_icon").attr("src", `${YD.SS_URL}${unit_id}${YD.SS_EXT}`).on('dblclick', openWikiPage.bind(null, data[YD.NAME]));
 
 			const $box = addBox(data[YD.NAME], $table).data('id', unit_id).css('height', tmpl_height + 40);
-			$box.find('input[type=checkbox]').prop('checked', true).on('change', function(){ $box.remove(); listAutoSave(); })
-			$box.on('drag', listAutoSave);
+			$box.find('input[type=checkbox]').prop('checked', true).on('change', function(){ $box.remove(); /* listAutoSave(); */ })
+			/* $box.on('drag', listAutoSave); */
 
 			return $box;
 		}
@@ -232,7 +233,7 @@
 			});
 		}
 	</script>
-	<script>YURUDATA.get('https://yurutility.cf/data/202004-4', page_start);</script>
+	<script>YURUDATA.get('https://yurutility.cf/data/202005-1', page_start);</script>
 </body>
 
 </html>
