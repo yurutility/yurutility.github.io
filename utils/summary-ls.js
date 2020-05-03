@@ -34,7 +34,7 @@
 					.css('overflow', 'hidden')
 					//.css('max-width', '0');
 					.data('id', chara_data[YD.ID])
-					.on('dblclick', addUnit.bind(null, chara_data[YD.ID]))
+					.on('dblclick', function() { addUnit(chara_data[YD.ID]); return false; })
 					.on('mouseover', mouseOver)
 					.on('mouseout', mouseOut);
 

@@ -22,6 +22,10 @@
 			'./summary-ls.js',
 			'./summary-ls2.js',
 			'./summary-action-special.js',
+			'./summary-units.js',
+		];
+		const auto_show = [
+			'ユニット簡易カウンタ',
 		];
 	</script>
 	<style>
@@ -81,7 +85,7 @@
 		<tr><th>2技</th><td colspan="2"><span class="unit_skill2"></span></td></tr>
 		<tr><th>3技</th><td colspan="2"><span class="unit_skill3"></span></td></tr>
 		<tr><th>4技</th><td colspan="2"><span class="unit_skill4"></span></td></tr>
-		<tr><th>LS</th> <td colspan="2" style="max-width: 130px;"><span class="unit_ls"></span></td></tr>
+		<tr><th>LS</th> <td colspan="2" style="max-width: 130px; padding-bottom: 2px;"><span class="unit_ls"></span></td></tr>
 	</table>
 
 	<div id="chara_info" style="display: none; position: absolute; width: 200px; height: 150px; top: 0px; left: 0px; border: solid 1px; #000; background-color: #fff; padding: 8px; z-index: 99999">
@@ -146,7 +150,7 @@
 			}
 		}
 
-		// .on('dblclick', addUnit.bind(null, chara_data[YD.ID]))
+		// .on('dblclick', function() { addUnit(chara_data[YD.ID]); return false; })
 		function addUnit( unit_id ) {
 			const data = CD[unit_id];
 			const rare = data[YD.RARE];
@@ -167,12 +171,12 @@
 				$table.find(".unit_spd120").text( '(' + data[ YD.SPD120 ] + ')').css( 'color', data[ YD.SPD ] == data[ YD.SPD120 ] ? 'inherit' : 'red' );
 				$table.find(".unit_acc120").text( '(' + data[ YD.ACC120 ] + ')').css( 'color', data[ YD.ACC ] == data[ YD.ACC120 ] ? 'inherit' : 'red' );
 			}
-			$table.find(".unit_skill2").text( data[ YD.SKILL2 ] ? data[ YD.SKILL2 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL2 ] ? data[ YD.SKILL2 ][ YD.S_NAME ] : "" );
-			$table.find(".unit_skill3").text( data[ YD.SKILL3 ] ? data[ YD.SKILL3 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL3 ] ? data[ YD.SKILL3 ][ YD.S_NAME ] : ""  );
-			$table.find(".unit_skill4").text( data[ YD.SKILL4 ] ? data[ YD.SKILL4 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL4 ] ? data[ YD.SKILL4 ][ YD.S_NAME ] : ""  );
-			$table.find(".unit_ls").text( data[YD.LS][YD.LS_KOUKA] ).attr('title', data[YD.LS][YD.ID] ? `[${data[YD.LS][YD.NAME]}]\n${data[YD.LS][YD.LS_DESC]}` : "" );;
+			$table.find(".unit_skill2").text( data[ YD.SKILL2 ] ? data[ YD.SKILL2 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL2 ] ? `[${data[YD.SKILL2][YD.S_NAME]}]\n${data[YD.SKILL2][YD.S_DESC]}` : "" ).css('border-bottom', data[ YD.SKILL2 ] ? "dotted 1px #6699cc" : "" );
+			$table.find(".unit_skill3").text( data[ YD.SKILL3 ] ? data[ YD.SKILL3 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL3 ] ? `[${data[YD.SKILL3][YD.S_NAME]}]\n${data[YD.SKILL3][YD.S_DESC]}` : "" ).css('border-bottom', data[ YD.SKILL3 ] ? "dotted 1px #6699cc" : "" );
+			$table.find(".unit_skill4").text( data[ YD.SKILL4 ] ? data[ YD.SKILL4 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL4 ] ? `[${data[YD.SKILL4][YD.S_NAME]}]\n${data[YD.SKILL4][YD.S_DESC]}` : "" ).css('border-bottom', data[ YD.SKILL4 ] ? "dotted 1px #6699cc" : "" );
+			$table.find(".unit_ls").text( data[YD.LS][YD.LS_KOUKA] ).attr('title', data[YD.LS][YD.ID] ? `[${data[YD.LS][YD.NAME]}]\n${data[YD.LS][YD.LS_DESC]}` : "" ).css('border-bottom', "dotted 1px #6699cc");
 
-			$table.find(".unit_icon").attr("src", `${YD.SS_URL}${unit_id}${YD.SS_EXT}`).on('dblclick', openWikiPage.bind(null, data[YD.NAME]));
+			$table.find(".unit_icon").attr("src", `${YD.SS_URL}${unit_id}${YD.SS_EXT}`).on('dblclick', function() { openWikiPage(data[YD.NAME]); return false; } );
 
 			const $box = addBox(data[YD.NAME], $table).data('id', unit_id).css('height', tmpl_height + 40);
 			$box.find('input[type=checkbox]').prop('checked', true).on('change', function(){ $box.remove(); /* listAutoSave(); */ })
@@ -216,7 +220,6 @@
 			function showHelp() {
 				const $box = addBox('ヘルプ', $help.clone())
 					.css('left', '500px').css('top', '4px').css('width', '400px');
-
 				$help.find('#help_top').remove();
 				return $box;
 			}
@@ -241,6 +244,12 @@
 			plugins.forEach((url) => {
 				$('<script>').attr({ 'src': url }).appendTo($('body'));
 			});
+			setTimeout(() => {
+				auto_show.forEach((name) => {
+					if (SummaryList[name])
+						SummaryList[name]();
+				});
+			}, 500);
 		}
 	</script>
 	<script>YURUDATA.get('https://yurutility.cf/data/202005-1', page_start);</script>

@@ -591,12 +591,12 @@
 				$table.find(".unit_acc120").text( '(' + data[ YD.ACC120 ] + ')').css( 'color', data[ YD.ACC ] == data[ YD.ACC120 ] ? 'inherit' : 'red' );
 			}
 
-			$table.find(".unit_skill2").text( data[ YD.SKILL2 ] ? data[ YD.SKILL2 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL2 ] ? `[${data[YD.SKILL2][YD.S_NAME]}]\n${data[YD.SKILL2][YD.S_DESC]}` : "" );
-			$table.find(".unit_skill3").text( data[ YD.SKILL3 ] ? data[ YD.SKILL3 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL3 ] ? `[${data[YD.SKILL3][YD.S_NAME]}]\n${data[YD.SKILL3][YD.S_DESC]}` : "" );
-			$table.find(".unit_skill4").text( data[ YD.SKILL4 ] ? data[ YD.SKILL4 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL4 ] ? `[${data[YD.SKILL4][YD.S_NAME]}]\n${data[YD.SKILL4][YD.S_DESC]}` : "" );
-			$table.find(".unit_ls").text( data[YD.LS][YD.LS_KOUKA] ).attr('title', data[YD.LS][YD.ID] ? `[${data[YD.LS][YD.NAME]}]\n${data[YD.LS][YD.LS_DESC]}` : "" );;
+			$table.find(".unit_skill2").text( data[ YD.SKILL2 ] ? data[ YD.SKILL2 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL2 ] ? `[${data[YD.SKILL2][YD.S_NAME]}]\n${data[YD.SKILL2][YD.S_DESC]}` : "" ).css('border-bottom', data[ YD.SKILL2 ] ? "dotted 1px #6699cc" : "" );
+			$table.find(".unit_skill3").text( data[ YD.SKILL3 ] ? data[ YD.SKILL3 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL3 ] ? `[${data[YD.SKILL3][YD.S_NAME]}]\n${data[YD.SKILL3][YD.S_DESC]}` : "" ).css('border-bottom', data[ YD.SKILL3 ] ? "dotted 1px #6699cc" : "" );
+			$table.find(".unit_skill4").text( data[ YD.SKILL4 ] ? data[ YD.SKILL4 ][ YD.NAME ] : "-" ).attr('title', data[ YD.SKILL4 ] ? `[${data[YD.SKILL4][YD.S_NAME]}]\n${data[YD.SKILL4][YD.S_DESC]}` : "" ).css('border-bottom', data[ YD.SKILL4 ] ? "dotted 1px #6699cc" : "" );
+			$table.find(".unit_ls").text( data[YD.LS][YD.LS_KOUKA] ).attr('title', data[YD.LS][YD.ID] ? `[${data[YD.LS][YD.NAME]}]\n${data[YD.LS][YD.LS_DESC]}` : "" ).css('border-bottom', "dotted 1px #6699cc");
 
-			$table.find(".unit_icon").attr("src", `${YD.SS_URL}${unit_id}${YD.SS_EXT}`).on('dblclick', openWikiPage.bind(null, data[YD.NAME]));
+			$table.find(".unit_icon").attr("src", `${YD.SS_URL}${unit_id}${YD.SS_EXT}`).on('dblclick', function() { openWikiPage(data[YD.NAME]); return false; } );
 
 			const $box = addBox(data[YD.NAME], $table).data('id', unit_id).css('height', tmpl_height + 40);
 			$box.find('input[type=checkbox]').prop('checked', true).on('change', function(){ $box.remove(); /* listAutoSave(); */ })
