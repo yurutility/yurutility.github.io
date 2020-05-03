@@ -39,11 +39,11 @@
 			.append($('<td>').text(attr_total_all[3] + attr_total_all[4] + attr_total_all[5]).css('text-align', 'right'))
 			.appendTo($_tbody);
 		$('<tr>')
-			.append( $('<th>').text(`合計`) )
-			.append($('<td>').text(`★3`).css('text-align', 'right'))
-			.append($('<td>').text(`★4`).css('text-align', 'right'))
-			.append($('<td>').text(`★5`).css('text-align', 'right'))
-			.append($('<td>').text(`計`).css('text-align', 'right'))
+			.append( $('<th>').text(`合計`).attr('width','20%') )
+			.append($('<th>').text(`★3`).css('text-align', 'right').attr('width','20%'))
+			.append($('<th>').text(`★4`).css('text-align', 'right').attr('width','20%'))
+			.append($('<th>').text(`★5`).css('text-align', 'right').attr('width','20%'))
+			.append($('<th>').text(`計`).css('text-align', 'right').attr('width','20%'))
 			.prependTo($_thead);
 	}
 	RegistSummary('ユニット簡易カウンタ', 'ユニット簡易カウンタ', ユニット簡易カウンタ);
