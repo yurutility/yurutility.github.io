@@ -31,6 +31,12 @@
 	<link rel="stylesheet" href="yurutility-common.css">
 
 	<style>
+		th, td {
+			min-width: 16px;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			overflow: hidden;
+		}
 		/* アクション表示 (2技 3技 4技) */
 		.skilltype {
 			line-height: 20px;
@@ -59,7 +65,7 @@
 <body>
 	<div id="basePanel" style="position: absolute; width: 100%; height: 100%; top: 0px; left: 0px; overflow: auto;">
 
-	<div style="position: absolute; width: 100%; height: 96px; overflow: hidden;">
+	<div style="width: 100%; height: 96px; overflow: hidden;">
 		<select id="page_url"><option value="units">ユニット管理</option><option value="view">ユニット一覧</option><option value="summary">ユニット集計</option><option value="materials">育成素材管理</option><option value="compare">ユニット比較</option><option value="help">ヘルプ</option></select> 
 		フィルタ：
 		<!--
@@ -168,15 +174,6 @@
 		(条件の追加は<a target="_blank" href="https://forms.gle/2ZDsQX4WtA36h9qD9">要望送信フォーム</a>からお気軽に)
 	</div>
 
-	<div style="position: absolute; width: 100%; height: calc(100% - 134px); top: 88px;">
-		<div id="example-table"></div>
-	</div>
-
-	<div id="chara_info" style="display: none; position: absolute; width: 200px; height: 150px; top: 200px; left: 300px; border: solid 1px; #000; background-color: #fff; padding: 8px;">
-		<span id="chara_name"></span><br>
-		<img id="chara_icon" src="">
-	</div>
-
 	<table id="tmpl" border="0" style="width: 100%;">
 		<!-- tr>
 			<th colspan="2">
@@ -192,8 +189,17 @@
 		<tr><th>2技</th><td colspan="2"><span class="unit_skill2"></span></td></tr>
 		<tr><th>3技</th><td colspan="2"><span class="unit_skill3"></span></td></tr>
 		<tr><th>4技</th><td colspan="2"><span class="unit_skill4"></span></td></tr>
-		<tr><th>LS</th> <td colspan="2"><span class="unit_ls"></span></td></tr>
+		<tr><th>LS</th> <td colspan="2" style="max-width: 130px;"><span class="unit_ls"></span></td></tr>
 	</table>
+
+	<div style="position: absolute; width: 100%; height: calc(100% - 134px); top: 88px;">
+		<div id="example-table"></div>
+	</div>
+
+	<div id="chara_info" style="display: none; position: absolute; width: 200px; height: 150px; top: 200px; left: 300px; border: solid 1px; #000; background-color: #fff; padding: 8px;">
+		<span id="chara_name"></span><br>
+		<img id="chara_icon" src="">
+	</div>
 
 	<footer style="position: absolute; bottom: 0; left: 0; width: 100%; height: 64px; overflow: hidden;">
 		<div style="font-size: small;">
