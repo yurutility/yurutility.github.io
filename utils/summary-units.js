@@ -40,10 +40,10 @@
 			.appendTo($_tbody);
 		$('<tr>')
 			.append( $('<th>').text(`合計`).attr('width','20%') )
-			.append($('<th>').text(`★3`).css('text-align', 'right').attr('width','20%'))
-			.append($('<th>').text(`★4`).css('text-align', 'right').attr('width','20%'))
-			.append($('<th>').text(`★5`).css('text-align', 'right').attr('width','20%'))
-			.append($('<th>').text(`計`).css('text-align', 'right').attr('width','20%'))
+			.append($('<th>').text(`★3`).attr('width','20%'))
+			.append($('<th>').text(`★4`).attr('width','20%'))
+			.append($('<th>').text(`★5`).attr('width','20%'))
+			.append($('<th>').text(`計`).attr('width','20%'))
 			.prependTo($_thead);
 	}
 	RegistSummary('ユニット簡易カウンタ', 'ユニット簡易カウンタ', ユニット簡易カウンタ);
