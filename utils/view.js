@@ -1,6 +1,7 @@
 		const config = {
 			height: "100%", // set height of table (in CSS or here), this enables the Virtual DOM and improves render speed dramatically (can be any valid css height value)
 			layout: "fitColumns", //fit columns to width of table (optional)
+			selectable: true,
 			columns: [ //Define Table Columns
 				{ title: "id", field: "id", width: 70, align: "right", visible: false, },
 				{ title: "属性", field: "attr", width: 40, align: "center", },
@@ -654,5 +655,4 @@
 				membersUpdate();
 			});
 		}
-
 
