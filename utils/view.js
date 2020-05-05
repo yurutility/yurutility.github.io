@@ -2,12 +2,37 @@
 			height: "100%", // set height of table (in CSS or here), this enables the Virtual DOM and improves render speed dramatically (can be any valid css height value)
 			layout: "fitColumns", //fit columns to width of table (optional)
 			selectable: true,
+			cellContext:function(e, cell){
+				//e - the click event object
+				//cell - cell component
+				e.preventDefault();
+				if (cell._cell.column.definition.title === "ユニット名") {
+					//【要修正】値の設定
+					$('#menu_name').text(`ヴァル子`);
+					$('#menu_level').text(`120`);
+					$('#menu_limit').text(`110`);
+					$('#menu_skill').text(`Lv.6`);
+					$('#menu span').removeClass('ui-icon-check');
+					$('#level_level span[data-type=level][data-level=120]').addClass('ui-icon-check')
+					$('#limit_level span[data-type=limit][data-level=120]').addClass('ui-icon-check')
+					$('#skill_level span[data-type=skill][data-level=2]').addClass('ui-icon-check')
+					$('#limit_break').removeClass('ui-state-disabled');
+					$('#limit_break').addClass('ui-state-disabled');
+
+					//【要修正】画面の下の方ならクリック位置に下端を合わせる
+					$cm.css('left', `${e.pageX}px`);
+					$cm.css('top',  `${e.pageY}px`);
+					//$cm.show();
+				} else {
+					$cm.hide();
+				}
+			},
 			columns: [ //Define Table Columns
 				{ title: "id", field: "id", width: 70, align: "right", visible: false, },
 				{ title: "属性", field: "attr", width: 40, align: "center", },
 				{ title: "ランク", field: "rankstar", width: 40, align: "center", },
 				{
-					title: "ユニット名", field: "name", width: 180,
+					title: "ユニット名", field: "name", width: 200,
 					formatter: nameFormatter,
 					cellDblClick: cellDblClick,
 					cellMouseOver: function (e, cell) { // e - the event object / cell - cell component
@@ -117,7 +142,6 @@
 			//	alert("Row " + row.getData().id + " Clicked!!!!");
 			//},
 		};
-
 		const ClmnIdx = { "HP": 0, "攻撃力": 0, "防御力": 0, "回復力": 0, "素早さ": 0, };
 		for (let idx = 0; idx < config.columns.length; idx++) {
 			if ( ClmnIdx[ config.columns[idx].title ] === 0) {
@@ -140,7 +164,7 @@
 				? `<span class="nothave" title="メダル交換所">${name} (${data.gacha}枚)</span>`
 				: data.gacha
 					? `<span class="nothave" title="${YD.gacha_type[data.id]}">${name} (${data.gacha}%)</span>`
-					: name
+					: `<img class="name_icon" src="${YD.SS_URL}${data.id}${YD.SS_EXT}"> ${name}`
 					;
 		}
 		let chkSkillName = false;
@@ -395,18 +419,6 @@
 			// <option>リーダースキルが HP+30%</option>
 			// <option>リーダースキルが 上記５つ以外</option>
 			// <option>リーダースキルが 全属性対象</option>
-			// <option>究極覚醒 対象キャラ</option>
-			// <option>単ヒール持ち</option>
-			// <option>全ヒール持ち</option>
-			// <option>オートヒール持ち</option>
-			// <option>リカバリー持ち</option>
-			// <option>ディスペル持ち</option>
-			// <option>クイック持ち</option>
-			// <option>スロウ持ち</option>
-			// <option>ウェポンブレイク持ち</option>
-			// <option>シールドブレイク持ち</option>
-			// <option>ウェポンブースト持ち</option>
-			// <option>シールドブースト持ち</option>
 
 			filterFunc.tan3 = id => !!(CD[id][YD.SKILL3] ? CD[id][YD.SKILL3][YD.S_KOUKA]||"" : "").match(/単\d+hit x\d/);
 			filterFunc.ran3 = id => !!(CD[id][YD.SKILL3] ? CD[id][YD.SKILL3][YD.S_KOUKA]||"" : "").match(/乱\d+hit x\d/);
@@ -641,6 +653,13 @@
 		YURUDATA.gacha_unit = { };
 		YURUDATA.gacha_type = { };
 
+		const $cm = $("#contextmenu");
+		const $menu = $("#menu").menu({
+			select: function(event, ui) {
+				$cm.hide();
+			},
+		});
+
 		function page_start(){
 			loadData();
 
@@ -654,5 +673,14 @@
 				Object.keys(json).forEach(v => Object.keys(json[v]).forEach(v2 => { gacha_unit[v2] = json[v][v2]; gacha_type[v2] = v; }));
 				membersUpdate();
 			});
+
+			setTimeout(() => {
+				$cm.css({
+					'visibility': '',
+					'position': 'absolute',
+					'width': `${$menu.width()}px`,
+					'heigth': `${$menu.height()}px`,
+				}).hide();
+			}, 1000);
 		}
 

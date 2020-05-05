@@ -31,6 +31,8 @@
 	<link rel="stylesheet" href="yurutility-common.css">
 
 	<style>
+		img.name_icon { vertical-align: top; width: 20px; height: 20px; }
+
 		th, td {
 			min-width: 16px;
 			text-overflow: ellipsis;
@@ -58,6 +60,8 @@
 		.skilltype13 { background-color: rgb( 50, 80,190); } /* (青)デバフ */
 		.skilltype14 { background: linear-gradient(15deg, rgb(210,164,0) 50%, rgb(220,50,50) 50%); } /* (黄/赤)バフ＆リジェネ */
 		.nothave { color: #f00; }
+
+		.ui-menu { width: 180px; font-size: 12px; }
 	</style>
 
 </head>
@@ -199,6 +203,54 @@
 	<div id="chara_info" style="display: none; position: absolute; width: 200px; height: 150px; top: 200px; left: 300px; border: solid 1px; #000; background-color: #fff; padding: 8px;">
 		<span id="chara_name"></span><br>
 		<img id="chara_icon" src="">
+	</div>
+
+	<div id="contextmenu" style="visibility: hidden; background-color: #ffffff;">
+		<div style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding: 2px; font-size: 14px;">
+			<span id="menu_name"></span>
+		</div>
+		<ul id="menu">
+			<li><div class="submenu">レベル <span id="menu_level"></span></div>
+			<ul id="level_level">
+				<li><div><span data-type="level" data-level="100" class="ui-icon ui-icon-blank"></span>100</div></li>
+				<li><div><span data-type="level" data-level="120" class="ui-icon ui-icon-blank"></span>120</div></li>
+				<li><div><span data-type="level" data-level="115" class="ui-icon ui-icon-blank"></span>115</div></li>
+				<li><div><span data-type="level" data-level="110" class="ui-icon ui-icon-blank"></span>110</div></li>
+				<li><div><span data-type="level" data-level="105" class="ui-icon ui-icon-blank"></span>105</div></li>
+				<li><div><span data-type="level" data-level="80"  class="ui-icon ui-icon-blank"></span>80</div></li>
+			</ul>
+			<li id="limit_break"><div class="submenu">限界突破 <span id="menu_limit"></span></div>
+			<ul id="limit_level">
+				<li><div><span data-type="limit" data-level="102" class="ui-icon ui-icon-blank"></span>102</div></li>
+				<li><div><span data-type="limit" data-level="104" class="ui-icon ui-icon-blank"></span>104</div></li>
+				<li><div><span data-type="limit" data-level="105" class="ui-icon ui-icon-blank"></span>105</div></li>
+				<li><div><span data-type="limit" data-level="106" class="ui-icon ui-icon-blank"></span>106</div></li>
+				<li><div><span data-type="limit" data-level="107" class="ui-icon ui-icon-blank"></span>107</div></li>
+				<li><div><span data-type="limit" data-level="108" class="ui-icon ui-icon-blank"></span>108</div></li>
+				<li><div><span data-type="limit" data-level="109" class="ui-icon ui-icon-blank"></span>109</div></li>
+				<li><div><span data-type="limit" data-level="110" class="ui-icon ui-icon-blank"></span>110</div></li>
+				<li><div><span data-type="limit" data-level="111" class="ui-icon ui-icon-blank"></span>111</div></li>
+				<li><div><span data-type="limit" data-level="112" class="ui-icon ui-icon-blank"></span>112</div></li>
+				<li><div><span data-type="limit" data-level="113" class="ui-icon ui-icon-blank"></span>113</div></li>
+				<li><div><span data-type="limit" data-level="114" class="ui-icon ui-icon-blank"></span>114</div></li>
+				<li><div><span data-type="limit" data-level="115" class="ui-icon ui-icon-blank"></span>115</div></li>
+				<li><div><span data-type="limit" data-level="116" class="ui-icon ui-icon-blank"></span>116</div></li>
+				<li><div><span data-type="limit" data-level="117" class="ui-icon ui-icon-blank"></span>117</div></li>
+				<li><div><span data-type="limit" data-level="118" class="ui-icon ui-icon-blank"></span>118</div></li>
+				<li><div><span data-type="limit" data-level="119" class="ui-icon ui-icon-blank"></span>119</div></li>
+				<li><div><span data-type="limit" data-level="120" class="ui-icon ui-icon-blank"></span>120</div></li>
+			</ul>
+			<li><div class="submenu">スキルレベル <span id="menu_skill"></span></div>
+			<ul id="skill_level">
+				<li><div><span data-type="skill" data-level="1" class="ui-icon ui-icon-blank"></span>Lv.1</div></li>
+				<li><div><span data-type="skill" data-level="2" class="ui-icon ui-icon-blank"></span>Lv.2</div></li>
+				<li><div><span data-type="skill" data-level="3" class="ui-icon ui-icon-blank"></span>Lv.3</div></li>
+				<li><div><span data-type="skill" data-level="4" class="ui-icon ui-icon-blank"></span>Lv.4</div></li>
+				<li><div><span data-type="skill" data-level="5" class="ui-icon ui-icon-blank"></span>Lv.5</div></li>
+				<li><div><span data-type="skill" data-level="6" class="ui-icon ui-icon-blank"></span>Lv.6</div></li>
+			</ul>
+			</li>
+		</ul>
 	</div>
 
 	<footer style="position: absolute; bottom: 0; left: 0; width: 100%; height: 64px; overflow: hidden;">
