@@ -102,9 +102,6 @@ function membersUpdate() {
 	$members.append($('<div>').css('clear', 'both'));
 }
 
-// $(() => // <script> を <body> の最後に移動したので必要な DOM は既に使える
-{
-
 // 右クリック制限
 $(document.body).on('contextmenu', (e) => {
 	if (e.target.id == 'txtData')
@@ -455,10 +452,5 @@ function page_start() {
 	createSearchWords();
 	loadData();
 	membersUpdate();
-	if (CD[60605][YD.ORDER] != 60060365) {
-		console.warn('【データ作成ミス】真闇の大魔導士ルーのソートIDが違う！');
-	}
 }
 
-}
-// ); // $(() => を外した
