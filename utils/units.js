@@ -450,7 +450,7 @@ $("#project").autocomplete({
 };
 
 // エントリポイント
-//YURUDATA.get('https://yurutility.cf/data/201906-2', page_start());
+//YURUDATA.get('https://yurutility.download/data/201906-2', page_start());
 function page_start() {
 	createSearchWords();
 	loadData();
