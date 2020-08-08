@@ -212,6 +212,42 @@
 				$(this).blur();
 			}
 		});
+
+
+		$('#CurLv').on('wheel', function (e) {
+			const $input = $('#CurLv');
+			if (e.originalEvent.deltaY < 0) {
+				const value = parseInt($input.val()) + 1;
+				if (value > parseInt($input.attr('max'))) {
+					return;
+				}
+				$input.val(value);
+				$input.trigger('input');
+			}
+			if (e.originalEvent.deltaY > 0) {
+				const value = parseInt($input.val()) - 1;
+				if (value < parseInt($input.attr('min'))) {
+					return;
+				}
+				$input.val(value);
+				$input.trigger('input');
+			}
+		});
+
+		$('#NextExp').on('wheel', function (e) {
+			const $input = $('#NextExp');
+			if (e.originalEvent.deltaY < 0) {
+				const value = parseInt($input.val()) + 1;
+				$input.val(value);
+				$input.trigger('input');
+			}
+			if (e.originalEvent.deltaY > 0) {
+				const value = parseInt($input.val()) - 1;
+				$input.val(value);
+				$input.trigger('input');
+			}
+		});
+
 		$('#CurLv').on('input', function () {
 			const lv = parseInt($('#CurLv').val());
 			$(`input.col_id[data-row=1]`).data('lv', lv);
@@ -330,11 +366,10 @@
 			const $this = $(this);
 			const row = $this.data('row');
 			const col = $this.data('col')
-			console.log(`data-row=${row} data-col=${col}`);
+			//console.log(`data-row=${row} data-col=${col}`);
 			calcExp(row);
 		}
 		function onwheel(e, delta) {
-			//debug.log(`Wheel: ${e.target.tagName} ${e.originalEvent.deltaY}`);
 			if (e.target.tagName == 'INPUT') {
 				const $input = $(e.target);
 				if (e.originalEvent.deltaY < 0) {
@@ -355,8 +390,8 @@
 				}
 			}
 		}
-		$('input').on('input', oninput);
-		$(window).on('wheel', onwheel);
+		$('#tbody').on('input', 'input', oninput);
+		$('#tbody').on('wheel', 'input', onwheel);
 		$('#tbody').on('click', 'button.btnDel', function() {
 			alert('行削除は現在まだ実装されていません\n最下段の Reset で全削除は出来ます');
 		})
