@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>強化コスト電卓</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<style>
+		#thead>tr>th.icon {
+			text-align: right;
+		}
+
+		#tbody>tr:nth-child(odd) {
+			background-color: #f0f0f0;
+		}
+
+		/* 偶数行のスタイル */
+		#tbody>tr:nth-child(even) {
+			background-color: white;
+		}
+
+		#tfoot>tr {
+			background-color: #ffffdd;
+		}
+
+		tr>td,
+		tr>td {
+			font-size: 20px;
+			text-align: right;
+		}
+
+		th.col_id {
+			width: 24px;
+		}
+
+		td.col_2,
+		td.col_3,
+		td.col_4,
+		td.col_5 {
+			width: 64px;
+		}
+
+		td.col_lvfrom,
+		td.col_lvto {
+			width: 40px;
+		}
+
+		td.col_arrow {
+			width: 20px;
+		}
+
+		td.col_exp {
+			width: 100px;
+		}
+
+		td.col_over,
+		td.col_under {
+			font-size: 16px;
+			width: 72px;
+		}
+
+		td.col_gold {
+			width: 72px;
+		}
+
+		td.col_stamina {
+			width: 72px;
+		}
+
+		#tbody>tr>td.col_btn {
+			width: 72px;
+			text-align: center;
+		}
+
+		input[type=number] {
+			text-align: right;
+			font-size: 20px;
+			width: 40px;
+			border-top: none;
+			border-left: none;
+			border-right: none;
+			background: transparent;
+		}
+
+		input[type=number].error {
+			background: #ffcccc;
+		}
+	</style>
+</head>
+
+<body>
+	<div>
+		<select id="page_url"><option value="units">ユニット管理</option><option value="view">ユニット一覧</option><option value="summary">ユニット集計</option><option value="materials">育成素材管理</option><option value="compare">ユニット比較</option><option value="calc">強化素材計算</option><option value="help">ヘルプ</option></select>
+		　　　
+		<a href="https://forms.gle/2ZDsQX4WtA36h9qD9">バグ報告・要望送信フォーム</a><br>
+		<br>
+		<br>
+	</div>
+	<script>
+		$('#page_url').on('change', () => {
+			const page = $('#page_url').val();
+			location.href = `${page}.html`;
+		}).val('calc');
+	</script>
+
+	<table border="0" cellspacing="0" cellpadding="0">
+		<thead id="thead">
+			<tr>
+				<th colspan="11" style="text-align: left">
+					現在Lv. <input type="number" id="CurLv" data-row="1" min="1" max="150" value="1" style="width: 60px;">
+					経験値あと <input type="number" id="NextExp" data-row="1" min="1" max="999999" value="28" style="width: 88px;">
+					<input type="hidden" class="exp" data-row="0" data-lv="1" data-exp="0">
+
+					<input id="chkBoost" type="checkbox" checked="checked"><span title="獲得経験値1.5倍 & 消費銀貨半減">土日</span>
+				</th>
+			</tr>
+			<tr>
+				<td colspan="11">　</td>
+			</tr>
+			<tr>
+				<th>　<!--<select id="Lv">
+						<option value="140">150</option>
+						<option value="130">140</option>
+						<option value="120">130</option>
+						<option value="110">110</option>
+						<option value="120">120</option>
+						<option value="5" selected="selected">★5</option>
+						<option value="4">★4</option>
+						<option value="3">★3</option>
+						<option value="2">★2</option>
+						<option value="1">★1</option>
+					</select><!-- --></th>
+				<th class="icon"><img src="https://yurutility.download/ss/150022.p" width="44" height="44"></th>
+				<th class="icon"><img src="https://yurutility.download/ss/150023.p" width="44" height="44"></th>
+				<th class="icon"><img src="https://yurutility.download/ss/150024.p" width="44" height="44"></th>
+				<th class="icon"><img src="https://yurutility.download/ss/150025.p" width="44" height="44"></th>
+				<th>獲得経験値</th>
+				<th colspan="3">レベル</th>
+				<th>超過分</th>
+				<th>次Lvまで</th>
+				<th>銀貨</th>
+				<th><span title="使用した素材＋銀貨を手に入れるのにかかる体力">素材体力</span></th>
+				<th>　</th>
+			</tr>
+		</thead>
+		<tbody id="tbody">
+			<tr id="rowbase" data-row="1">
+				<th class="col_id" data-row="1"><input type="hidden" class="exp" data-row="1" data-lv="1" data-exp="0"><span class="rowid">1</span></th>
+				<td class="col_2" data-row="1"><input type="number" class="rank2" data-row="1" data-col="2" min="0" max="10" value="0"></td>
+				<td class="col_3" data-row="1"><input type="number" class="rank3" data-row="1" data-col="3" min="0" max="10" value="0"></td>
+				<td class="col_4" data-row="1"><input type="number" class="rank4" data-row="1" data-col="4" min="0" max="10" value="0"></td>
+				<td class="col_5" data-row="1"><input type="number" class="rank5" data-row="1" data-col="5" min="0" max="10" value="0"></td>
+				<td class="col_exp" data-row="1">0</td>
+				<td class="col_lvfrom" data-row="1">1</td>
+				<td class="col_arrow" data-row="1">⇒</td>
+				<td class="col_lvto" data-row="1">1</td>
+				<td class="col_over" data-row="1">0</td>
+				<td class="col_under" data-row="1">28</td>
+				<td class="col_gold" data-row="1">0</td>
+				<td class="col_stamina" data-row="1">0</td>
+				<td class="col_btn" data-row="1"><button class="btnDel" data-row="1">－</button></td>
+			</tr>
+		</tbody>
+		<tfoot id="tfoot">
+			<tr>
+				<td colspan="1"><button id="btnAdd">＋</button></td>
+				<td class="col_2">0</td>
+				<td class="col_3">0</td>
+				<td class="col_4">0</td>
+				<td class="col_5">0</td>
+				<td class="col_exp">0</td>
+				<td class="col_lvfrom">　</td>
+				<td class="col_arrow">　</td>
+				<td class="col_lvto">　</td>
+				<td class="col_over">　</td>
+				<td class="col_under">　</td>
+				<td class="col_gold">0</td>
+				<td class="col_stamina">0</td>
+				<td><button id="btnReset">Reset</button></td>
+			</tr>
+		</tfoot>
+	</table>
+	<script>
+		const exp = [0, 0, 455, 841, 2244, 7590];
+		const exp_lv = [
+			0, 28, 84, 168, 280, 420, 588, 784, 1008, 1260, 1540, 1834, 2142, 2464, 2800, 3150, 3514, 3892, 4284, 4690,
+			5110, 5544, 5992, 6454, 6930, 7420, 7924, 8442, 8974, 9520, 10081, 10653, 11236, 11830, 12435, 13052, 13680, 14319, 14969, 15630,
+			16303, 16987, 17682, 18388, 19106, 19835, 20575, 21326, 22088, 22862, 23647, 24443, 25250, 26069, 26899, 27740, 28592, 29455, 30330, 31216,
+			32113, 33021, 33941, 34872, 35814, 36767, 37731, 38707, 39694, 40692, 41701, 42722, 43754, 44797, 45851, 46916, 47993, 49081, 50180, 51290,
+			52412, 53545, 54689, 55844, 57010, 58188, 59377, 60577, 61788, 63010, 64244, 65489, 66745, 68012, 69291, 70581, 71882, 73194, 74517, 75852,
+			78657, 84267, 92682, 103902, 117927, 134757, 154392, 176832, 202077, 230127, 260982, 294642, 331107, 370377, 412452, 457332, 505017, 555507, 608802, 664902,
+			721002, 779907, 838812, 900522, 970647, 1043577, 1119312, 1197852, 1279197, 1363347, 1450302, 1540062, 1632627, 1727997, 1826172, 1927152, 2030937, 2137527, 2246922, 2359122,
+			2474127, 2591937, 2712552, 2835972, 2962197, 3091227, 3223062, 3357702, 3495147, 3635397,
+			// Lv.151用 == Lv.150用 == Lv.149
+		];
+		const STAMINA = [0.000454545, 0, 1.653, 3.056, 8.154, 27.58]; // [銀貨,,プチ,..,..,ゴッド]
+
+
+
+		let rows = 1;
+
+		const $chkBoost = $('#chkBoost');
+		$(window).on('selectstart', () => false);
+		//$(window).on('contextmenu', () => false);
+		//$(window).on('select', () => false);
+		$('input').on('focus', function () {
+			$(this).select();
+		});
+		$('input').on('keydown', function (e) {
+			if (e.keyCode == 13) {
+				$(this).blur();
+			}
+		});
+		$('#CurLv').on('input', function () {
+			const lv = parseInt($('#CurLv').val());
+			$(`input.col_id[data-row=1]`).data('lv', lv);
+			const nextExp = exp_lv[lv] - exp_lv[lv - 1];
+			$('#NextExp').val(nextExp);
+			$(`td.col_lvfrom[data-row=1]`).text(lv);
+			$(`input.exp[data-row=0]`).data('exp', exp_lv[lv] - nextExp);
+			calcExp(1);
+		});
+		$('#NextExp').on('input', function () {
+			// 現在の累計経験値 = 
+			const lv = parseInt($('#CurLv').val());
+			let v = parseInt($('#NextExp').val());
+			if (v < 1) {
+				v = 1;
+				$('#NextExp').val(v);
+			}
+			if (v >= exp_lv[lv] - exp_lv[lv - 1]) {
+				v = exp_lv[lv] - exp_lv[lv - 1];
+				$('#NextExp').val(v);
+			}
+			const curExp = exp_lv[lv] - v;
+			$(`input.exp[data-row=0]`).data('exp', curExp);
+			calcExp(1);
+		});
+		function calcExp(row) {
+			row = parseInt(row);
+			const r2 = parseInt($(`input[data-row=${row}][data-col=2]`).val());
+			const r3 = parseInt($(`input[data-row=${row}][data-col=3]`).val());
+			const r4 = parseInt($(`input[data-row=${row}][data-col=4]`).val());
+			const r5 = parseInt($(`input[data-row=${row}][data-col=5]`).val());
+			if (r2 + r3 + r4 + r5 > 10) {
+				$(`input[data-row=${row}]`).addClass('error');
+			} else {
+				$(`input[data-row=${row}]`).removeClass('error');
+			}
+			const boost = $chkBoost.prop('checked') ? 1.5 : 1;
+			const getExp = r2 * Math.ceil(exp[2] * boost) + r3 * Math.ceil(exp[3] * boost) + r4 * Math.ceil(exp[4] * boost) + r5 * Math.ceil(exp[5] * boost);
+			$(`td.col_exp[data-row=${row}]`).text(getExp);
+
+			//現在経験値に足す
+			const curExp = $(`input.exp[data-row=${row - 1}]`).data('exp');
+			const nextExp = curExp + getExp;
+			$(`input.exp[data-row=${row}]`).data('exp', nextExp);
+			let i; // 現在レベル
+			for (i = exp_lv.length - 1; i > 0; i--) {
+				if (nextExp >= exp_lv[i])
+					break;
+			}
+			$(`td.col_lvto[data-row=${row}]`).text(i + 1);
+			if (row < rows) {
+				$(`td.col_lvfrom[data-row=${row + 1}]`).text(i + 1);
+			}
+			$(`td.col_over[data-row=${row}]`).text(nextExp - exp_lv[i]);
+			const next = i == exp_lv.length ? '-' : exp_lv[i + 1] - nextExp ;
+			$(`td.col_under[data-row=${row}]`).text(next);
+
+
+
+			// 銀貨
+			const LvFrom = parseInt($(`td.col_lvfrom[data-row=${row}]`).text());
+			const gold = (LvFrom * 30 + 70) * (r2 + r3 + r4 + r5) * ($chkBoost.prop('checked') ? 0.5 : 1);
+			$(`td.col_gold[data-row=${row}]`).text(Math.ceil(gold));
+
+			const getStamina = gold * STAMINA[0] + r2 * STAMINA[2] + r3 * STAMINA[3] + r4 * STAMINA[4] + r5 * STAMINA[5];
+			$(`td.col_stamina[data-row=${row}]`).text(Math.ceil(getStamina));
+
+
+			// 再帰的に呼ぶ
+			if (row < rows) {
+				calcExp(row + 1);
+			}
+			if (row >= rows) {
+				calcTotal();
+			}
+		}
+		function calcTotal() {
+			let stamina = 0;
+
+			// 強化素材 累計
+			const boost = $chkBoost.prop('checked') ? 1.5 : 1;
+			for (let i = 2; i <= 5; i++) {
+				const $col = $(`input[data-col=${i}]`);
+				let cnt = 0;
+				for (let elm of $col) {
+					cnt += parseInt($(elm).val());
+				}
+				stamina += cnt * STAMINA[i];
+				$(`#tfoot>tr>td.col_${i}`).text(cnt);
+			}
+
+			// 体力 累計
+			let stamina_total = 0;
+			for (let elm of $(`#tbody>tr>td.col_stamina`)) {
+				stamina_total += parseInt($(elm).text());
+			}
+			$('#tfoot>tr>td.col_stamina').text(stamina_total);
+
+			// 経験値 累計
+			let exp_total = 0;
+			for (let elm of $(`#tbody>tr>td.col_exp`)) {
+				exp_total += parseInt($(elm).text());
+			}
+			$('#tfoot>tr>td.col_exp').text(exp_total);
+
+			// 銀貨 累計
+			let gold_total = 0;
+			for (let elm of $(`#tbody>tr>td.col_gold`)) {
+				gold_total += parseInt($(elm).text());
+			}
+			$('#tfoot>tr>td.col_gold').text(gold_total);
+
+
+		}
+		function oninput(e) {
+			const $this = $(this);
+			const row = $this.data('row');
+			const col = $this.data('col')
+			console.log(`data-row=${row} data-col=${col}`);
+			calcExp(row);
+		}
+		function onwheel(e, delta) {
+			//debug.log(`Wheel: ${e.target.tagName} ${e.originalEvent.deltaY}`);
+			if (e.target.tagName == 'INPUT') {
+				const $input = $(e.target);
+				if (e.originalEvent.deltaY < 0) {
+					const value = parseInt($input.val()) + 1;
+					if (value > parseInt($input.attr('max'))) {
+						return;
+					}
+					$input.val(value);
+					calcExp($input.data('row'));
+				}
+				if (e.originalEvent.deltaY > 0) {
+					const value = parseInt($input.val()) - 1;
+					if (value < parseInt($input.attr('min'))) {
+						return;
+					}
+					$input.val(value);
+					calcExp($input.data('row'));
+				}
+			}
+		}
+		$('input').on('input', oninput);
+		$(window).on('wheel', onwheel);
+		$('#tbody').on('click', 'button.btnDel', function() {
+			alert('行削除は現在まだ実装されていません\n最下段の Reset で全削除は出来ます');
+		})
+		$('#chkBoost').on('input', () => { calcExp(1) });
+		$('#btnReset').on('click', () => {
+			for (let r = rows; r > 1; r--)
+			{
+				$(`tr[data-row=${r}]`).remove();
+			}
+			$('tr[data-row=1]').find('input').val(0);
+			rows = 1;
+			calcExp(1);
+		});
+		$('#btnAdd').on('click', () => {
+			rows++;
+			const $row = $('#rowbase').clone(true).appendTo('#tbody');
+			for (let elm of $row.find('*')) {
+				if (elm.dataset.row) {
+					elm.dataset.row = rows;
+				}
+			}
+			$row.get(0).dataset.row = rows;
+			$row.find('input').val(0);
+			$row.find('.rowid').text(rows);
+		})
+	</script>
+</body>
+
+</html>
